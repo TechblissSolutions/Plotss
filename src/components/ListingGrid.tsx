@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Heart, Map as MapIcon, ShieldCheck } from "lucide-react";
 import { mapsHref } from "@/lib/geo";
 import { useApp } from "@/ui/AppProvider";
@@ -26,6 +27,7 @@ function sortListings(listings: Listing[], sort: Sort): Listing[] {
 /** Shared card + sort control for /city/[slug] and /category/[slug] — the same save/map affordances as search results. */
 export function ListingGrid({ listings }: { listings: Listing[] }) {
   const { savedIds, toggleSave } = useApp();
+  const router = useRouter();
   const [sort, setSort] = useState<Sort>("match");
   const sorted = sortListings(listings, sort);
 
@@ -54,8 +56,16 @@ export function ListingGrid({ listings }: { listings: Listing[] }) {
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {sorted.map((l) => {
           const isSaved = savedIds.includes(l.id);
+          const href = `/listing/${l.slug}`;
           return (
-            <Link key={l.id} href={`/listing/${l.slug}`} className="group relative overflow-hidden rounded-md border border-line bg-white transition-colors hover:border-clay">
+            <div
+              key={l.id}
+              role="link"
+              tabIndex={0}
+              onClick={() => router.push(href)}
+              onKeyDown={(e) => { if (e.key === "Enter") router.push(href); }}
+              className="group relative cursor-pointer overflow-hidden rounded-md border border-line bg-white transition-colors hover:border-clay"
+            >
               <div className="relative">
                 {l.realImageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -67,7 +77,7 @@ export function ListingGrid({ listings }: { listings: Listing[] }) {
                     {l.verified ? "DOCS VERIFIED" : "AI-SCREENED"}
                   </div>
                 )}
-                <div className="absolute right-2 top-2 flex gap-1.5">
+                <div className="absolute right-2 top-2 z-10 flex gap-1.5">
                   <a
                     href={mapsHref(l)}
                     target="_blank"
@@ -81,7 +91,7 @@ export function ListingGrid({ listings }: { listings: Listing[] }) {
                   </a>
                   <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleSave(l.id); }}
+                    onClick={(e) => { e.stopPropagation(); toggleSave(l.id); }}
                     aria-label={isSaved ? `Remove ${l.title} from saved` : `Save ${l.title}`}
                     aria-pressed={isSaved}
                     title={isSaved ? "Saved" : "Save"}
@@ -93,13 +103,18 @@ export function ListingGrid({ listings }: { listings: Listing[] }) {
               </div>
               <div className="p-4">
                 <div className="text-xs text-stone">{l.city} · {l.microMarket}</div>
-                <h2 className="font-serif-headline mt-1 text-lg font-bold leading-snug">{l.title}</h2>
+                <h2 className="font-serif-headline mt-1 text-lg font-bold leading-snug">
+                  <Link href={href} onClick={(e) => e.stopPropagation()} className="focus:outline-none">
+                    <span className="absolute inset-0" aria-hidden="true" />
+                    {l.title}
+                  </Link>
+                </h2>
                 <div className="font-tabular mt-3 flex items-baseline justify-between">
                   <span className="text-xl font-bold">{l.priceDisplay}</span>
                   <span className="text-sm text-stone">{l.areaDisplay.split("(")[0]}</span>
                 </div>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
