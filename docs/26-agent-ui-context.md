@@ -4,17 +4,18 @@
 
 ## Theme
 
-Light only, warm-editorial, now deliberately rounded/soft (changed 2026-09, see [29 Progress tracker](29-agent-progress-tracker.md)) — not a cold/minimal SaaS look. Every token is admin-editable from `/admin/theme` and persisted in `site_settings.theme`; code only supplies the **defaults** (`src/lib/theme/defaults.ts`) and the **fallback first-paint CSS** (`src/app/globals.css`'s `:root` block) — if you change a default, mirror it in both places or the first paint will flash the old value.
+Light only, "Professional Blue + Amber" (changed 2026-10, see [29 Progress tracker](29-agent-progress-tracker.md)) — white/near-white page, deep blue for trust/institutional signals, amber gradient for CTAs; deliberately rounded/soft, not a cold/minimal SaaS look and not the old warm-terracotta "editorial" palette either. Every token is admin-editable from `/admin/theme` and persisted in `site_settings.theme`; code only supplies the **defaults** (`src/lib/theme/defaults.ts`) and the **fallback first-paint CSS** (`src/app/globals.css`'s `:root` block) — if you change a default, mirror it in both places or the first paint will flash the old value.
 
 | Role | CSS variable | Current default |
 |---|---|---|
-| Ink / text / dark fills | `--c-graphite` / `--f-graphite` | `#16181B` |
-| Brand accent (terracotta) | `--c-clay` / `--f-clay` | `#B5502C` |
-| Page background | `--c-ivory` / `--f-ivory` | `#F7F4EF` |
+| Ink / text / dark fills | `--c-graphite` / `--f-graphite` | `#0F172A` (cool slate, pairs with blue) |
+| Brand accent / CTA (amber gradient) | `--c-clay` / `--f-clay` | solid `#B45309` (text/borders) / gradient `#B45309 → #92400E` (button fills via `paint-clay`) |
+| Trust / institutional accent (eyebrows, auth panel) | `--c-trust` / `--f-trust` | `#1E3A8A` |
+| Page background | `--c-ivory` / `--f-ivory` | `#F8FAFC` |
 | High-signal accent (AI, live indicators) | `--c-signal` / `--f-signal` | `#C8FF4D` |
-| Secondary text | `--c-stone` / `--f-stone` | `#6B6560` |
+| Secondary text | `--c-stone` / `--f-stone` | `#64748B` |
 | Success / verified | `--c-moss` / `--f-moss` | `#3D5A40` |
-| Hairline borders | `--c-line` / `--f-line` | `#DDD8CF` |
+| Hairline borders | `--c-line` / `--f-line` | `#E2E8F0` |
 
 Derived Tailwind colors (`color-mix` in `globals.css`): `mist`, `sand`, `ink-2/3/4`, `clay-dark` — use these instead of manually mixing colors.
 

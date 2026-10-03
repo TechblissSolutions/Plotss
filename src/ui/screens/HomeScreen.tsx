@@ -1,12 +1,16 @@
 'use client';
 import { T, Show } from '../content';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { Listing, CityInfo, ScreenId } from '../types';
 import { useData } from '../data/DataProvider';
 import { AbstractPlotVisual } from '../components/AbstractPlotVisual';
+import { HeroVisual } from '../components/HeroVisual';
+import { Reveal } from '../components/Reveal';
 import { IndiaMap, type MapCity } from '../components/IndiaMap';
 import { mapsHref } from '@/lib/geo';
+import { formatINR } from '@/lib/format';
 
 /** Approximate city-centre coordinates for the launch cities' map pins. */
 const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
@@ -85,6 +89,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     return acc;
   }, []);
 
+  const verifiedCount = React.useMemo(() => listings.filter((l) => l.verified || l.aiScreened).length, [listings]);
+  const avgPrice = React.useMemo(() => {
+    const priced = listings.filter((l) => l.price > 0);
+    if (!priced.length) return '—';
+    return formatINR(Math.round(priced.reduce((sum, l) => sum + l.price, 0) / priced.length));
+  }, [listings]);
+
   const sampleSearchPrompts = [
     '3 acre industrial land near Ghaziabad under 5Cr',
     'Warehousing land near Narela or Bawana with truck access',
@@ -95,18 +106,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <div id="homepage-root" className="min-h-screen bg-ivory text-graphite">
       
-      {/* 1. HERO SECTION (Full-Bleed with 3D Abstract Land Geometry Background & AI Natural Language Search) */}
+      {/* 1. HERO SECTION (real photo + floating trust cards on the right, AI Natural Language Search on the left) */}
       <section className="relative w-full border-b border-line pt-12 pb-16 lg:pt-16 lg:pb-20 overflow-hidden">
         {/* Soft ambient glow — graphite-to-trust radial wash behind the headline, subtle not a flashy SaaS gradient */}
         <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full paint-trust opacity-10 blur-3xl pointer-events-none z-0" aria-hidden="true" />
         <div className="absolute left-1/3 top-1/2 h-72 w-72 rounded-full paint-clay opacity-[0.07] blur-3xl pointer-events-none z-0" aria-hidden="true" />
-        {/* Abstract 3D Geometric Land Graphic Layer */}
-        <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full opacity-20 md:opacity-40 lg:opacity-100 pointer-events-none z-0 flex items-center justify-end">
-          <AbstractPlotVisual variant="hero" interactive={true} />
-        </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-          <div className="max-w-2xl">
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-2xl"
+          >
             {/* Top Brand Eyebrow Tag */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm paint-trust text-ivory text-xs font-semibold uppercase tracking-wider mb-6 font-tabular">
               <span className="w-2 h-2 rounded-full paint-signal" />
@@ -124,7 +136,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             {/* AI Search Box with Quick-Filter Tabs */}
             <div className="mt-8 bg-ivory border border-graphite rounded-md shadow-lg p-2 sm:p-2.5">
-              
+
               {/* Quick-Filter Tabs (Buy / Lease / Rent) above search input */}
               <div className="flex items-center gap-1 mb-2 border-b border-line pb-2">
                 {(['Buy', 'Lease', 'Rent'] as const).map((tab) => (
@@ -190,6 +202,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 ))}
               </div>
             </div>
+          </motion.div>
+
+          {/* Real photo + floating trust cards — replaces the old abstract SVG plot graphic, which read as
+              an empty placeholder without a real image behind it. */}
+          <div className="hidden lg:block lg:h-[520px]">
+            <HeroVisual verifiedCount={verifiedCount} avgPrice={avgPrice} />
           </div>
         </div>
       </section>
@@ -197,31 +215,35 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* 1b. PRIME DISTRICTS (Micro-market tiles computed from live inventory — jump straight to an area) */}
       {primeDistricts.length > 0 && (
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-6">
-          <span className="text-xs font-bold text-trust uppercase tracking-wider font-tabular">
-            <T k="home.prime-districts-eyebrow">Prime Micro-Markets</T>
-          </span>
-          <h2 className="font-serif-headline text-2xl sm:text-3xl font-bold text-graphite mt-1">
-            <T k="home.prime-districts-title">Jump straight to an area</T>
-          </h2>
-          <p className="mt-1 text-sm text-stone">
-            <T k="home.prime-districts-subtitle">The corridors buyers search for most, right now.</T>
-          </p>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {primeDistricts.map((d) => (
-            <button
-              key={d.name}
-              type="button"
-              onClick={() => onSearchQuerySubmit(d.name, 'Buy')}
-              className="text-left bg-white rounded-sm border border-line p-4 hover:border-clay transition-colors cursor-pointer group"
-            >
-              <span className="text-[11px] text-stone font-semibold uppercase tracking-wide font-tabular">{d.city}</span>
-              <div className="mt-1 font-serif-headline text-base font-bold text-graphite group-hover:text-clay transition-colors truncate">{d.name}</div>
-              <div className="mt-1 text-xs text-stone font-tabular">{d.count} {d.count === 1 ? 'listing' : 'listings'}</div>
-            </button>
-          ))}
-        </div>
+        <Reveal>
+          <div className="mb-6">
+            <span className="text-xs font-bold text-trust uppercase tracking-wider font-tabular">
+              <T k="home.prime-districts-eyebrow">Prime Micro-Markets</T>
+            </span>
+            <h2 className="font-serif-headline text-2xl sm:text-3xl font-bold text-graphite mt-1">
+              <T k="home.prime-districts-title">Jump straight to an area</T>
+            </h2>
+            <p className="mt-1 text-sm text-stone">
+              <T k="home.prime-districts-subtitle">The corridors buyers search for most, right now.</T>
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {primeDistricts.map((d) => (
+              <button
+                key={d.name}
+                type="button"
+                onClick={() => onSearchQuerySubmit(d.name, 'Buy')}
+                className="text-left bg-white rounded-sm border border-line p-4 hover:border-clay transition-colors cursor-pointer group"
+              >
+                <span className="text-[11px] text-stone font-semibold uppercase tracking-wide font-tabular">{d.city}</span>
+                <div className="mt-1 font-serif-headline text-base font-bold text-graphite group-hover:text-clay transition-colors truncate">{d.name}</div>
+                <div className="mt-1 text-xs text-stone font-tabular">{d.count} {d.count === 1 ? 'listing' : 'listings'}</div>
+              </button>
+            ))}
+          </div>
+        </Reveal>
       </section>
       )}
 
@@ -369,6 +391,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       {/* 4. FEATURED / SIGNATURE LISTINGS (Grid with AI Match Score, Verified Badge & Abstract Plot Visual) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Reveal>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
           <div>
             <div className="flex items-center gap-2">
@@ -390,6 +413,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
+        </Reveal>
 
         {/* 3-Column Listing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -542,10 +566,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* 5a. INTERACTIVE MAP — hover a pin for its listing count, click to jump into that city's search */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          <div className="order-2 lg:order-1">
+          <Reveal className="order-2 lg:order-1">
             <IndiaMap cities={mapCities} onSelectCity={(c) => onSearchQuerySubmit(c.name, 'Buy')} />
-          </div>
-          <div className="order-1 lg:order-2">
+          </Reveal>
+          <Reveal delay={0.1} className="order-1 lg:order-2">
             <span className="text-xs font-bold text-trust uppercase tracking-wider font-tabular">
               <T k="home.featured-across-ncr">Featured Across NCR</T>
             </span>
@@ -573,7 +597,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <Link href="/city" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-clay hover:underline">
               <T k="home.browse-all-cities">Browse all cities</T> <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -625,7 +649,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className="absolute right-0 top-0 h-80 w-80 rounded-full paint-trust opacity-20 blur-3xl pointer-events-none" aria-hidden="true" />
         <div className="absolute left-1/4 bottom-0 h-64 w-64 rounded-full paint-clay opacity-10 blur-3xl pointer-events-none" aria-hidden="true" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mb-12">
+          <Reveal className="max-w-2xl mb-12">
             <span className="text-xs font-bold text-signal uppercase tracking-wider font-tabular">
               <T k="home.institutional-protocol">Institutional Protocol</T>
             </span>
@@ -635,7 +659,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <p className="mt-2 text-sm text-mist">
               <T k="home.how-subtitle">One place to search, shortlist and reach owners directly. New listings are screened before they go live.</T>
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
             {/* Step 1 */}
