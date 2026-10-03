@@ -1,6 +1,7 @@
 'use client';
 import { T } from '../content';
 import { useData } from '../data/DataProvider';
+import Link from 'next/link';
 import React from 'react';
 import { ScreenId, UserRole } from '../types';
 import { 
@@ -128,6 +129,9 @@ export const Header: React.FC<HeaderProps> = ({
               <T k="header.verified-brokers">Verified Brokers</T>
             </button>
             )}
+            <Link id="nav-insights-link" href="/blog" className="hover:text-clay transition-colors">
+              <T k="header.market-insights">Market Insights</T>
+            </Link>
           </nav>
 
           {/* Actions: Post Property + Dashboard / Login */}
@@ -223,7 +227,13 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <T k="header.broker-profile">Broker Profile</T>
               </button>
-
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-left py-2 px-2.5 rounded-sm border border-line text-graphite"
+              >
+                <T k="header.market-insights">Market Insights</T>
+              </Link>
             </div>
 
                       </div>

@@ -52,8 +52,8 @@ export default async function BlogIndex({ searchParams }: Props) {
     <main>
       <section className="bg-sand border-b border-line">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
-          <nav aria-label="Breadcrumb" className="mb-4 text-xs text-stone"><Link href="/" className="hover:text-clay">Home</Link> / <span className="text-graphite">Journal</span></nav>
-          <h1 className="font-serif-headline text-4xl font-bold md:text-5xl"><T k="blog.index.title">PLOTSS Journal</T></h1>
+          <nav aria-label="Breadcrumb" className="mb-4 text-xs text-stone"><Link href="/" className="hover:text-clay">Home</Link> / <span className="text-graphite">Market Insights</span></nav>
+          <h1 className="font-serif-headline text-4xl font-bold md:text-5xl"><T k="blog.index.title">PLOTSS Market Insights</T></h1>
           <p className="mt-3 max-w-2xl text-lg text-stone"><T k="blog.index.subtitle">Guides and market notes for land buyers and owners in Ghaziabad, Noida and New Delhi.</T></p>
           {tags.length > 0 && (
             <nav aria-label="Topics" className="mt-6 flex flex-wrap gap-2">

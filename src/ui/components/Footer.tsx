@@ -81,7 +81,7 @@ export const Footer: React.FC<FooterProps> = () => {
             </h4>
             <ul className="space-y-2 text-sm text-mist">
               <li><Link href="/post-listing" className="hover:text-ivory transition-colors"><T k="footer.post">Post a listing (free)</T></Link></li>
-              <li><Link href="/blog" className="hover:text-ivory transition-colors"><T k="footer.journal">Journal</T></Link></li>
+              <li><Link href="/blog" className="hover:text-ivory transition-colors"><T k="footer.journal">Market Insights</T></Link></li>
               <li><Link href="/about" className="hover:text-ivory transition-colors"><T k="footer.company.about">About us</T></Link></li>
               <li><Link href="/contact" className="hover:text-ivory transition-colors"><T k="footer.company.contact">Contact</T></Link></li>
               <li><Link href="/faq" className="hover:text-ivory transition-colors"><T k="footer.company.faq">FAQ</T></Link></li>

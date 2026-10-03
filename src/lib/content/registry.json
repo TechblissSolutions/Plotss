@@ -157,7 +157,7 @@
   },
   {
    "key": "blog.index.title",
-   "default": "PLOTSS Journal",
+   "default": "PLOTSS Market Insights",
    "file": "(site)/blog/page.tsx"
   },
   {
@@ -462,7 +462,7 @@
   },
   {
    "key": "footer.journal",
-   "default": "Journal",
+   "default": "Market Insights",
    "file": "components/Footer.tsx"
   },
   {
@@ -538,6 +538,11 @@
   {
    "key": "header.industrial-land",
    "default": "Industrial Land",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.market-insights",
+   "default": "Market Insights",
    "file": "components/Header.tsx"
   },
   {

@@ -40,14 +40,14 @@ export default async function BlogPost({ params }: Props) {
       publisher: { "@type": "Organization", name: g.orgName }, mainEntityOfPage: url,
       ...(p.cover ? { image: p.cover } : {}),
     },
-    breadcrumbLd(g, [{ name: "Home", path: "/" }, { name: "Journal", path: "/blog" }, { name: p.title, path: `/blog/${p.slug}` }]),
+    breadcrumbLd(g, [{ name: "Home", path: "/" }, { name: "Market Insights", path: "/blog" }, { name: p.title, path: `/blog/${p.slug}` }]),
   ];
   return (
     <main>
       {ld.map((o, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(o) }} />)}
       <div className="mx-auto max-w-3xl px-4 pt-10 sm:px-6">
         <nav aria-label="Breadcrumb" className="text-xs text-stone">
-          <Link href="/" className="hover:text-clay">Home</Link> / <Link href="/blog" className="hover:text-clay">Journal</Link>
+          <Link href="/" className="hover:text-clay">Home</Link> / <Link href="/blog" className="hover:text-clay">Market Insights</Link>
           {p.tags[0] && <> / <Link href={`/blog?tag=${encodeURIComponent(p.tags[0])}`} className="hover:text-clay">{p.tags[0]}</Link></>}
         </nav>
         {p.tags[0] && <div className="mt-5 text-xs font-semibold uppercase tracking-wider text-clay">{p.tags[0]}</div>}
