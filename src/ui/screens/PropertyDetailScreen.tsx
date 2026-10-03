@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Listing, ScreenId } from '../types';
 import { useData } from '../data/DataProvider';
 import { AbstractPlotVisual } from '../components/AbstractPlotVisual';
-import { CallbackCard, ListingHighlights, ListingLocationMap, ListingSpecs, MobileActionBar } from '../components/ListingExtras';
+import { CallbackCard, type CallbackDetails, ListingHighlights, ListingLocationMap, ListingSpecs, MobileActionBar } from '../components/ListingExtras';
 import { 
   ShieldCheck, 
   Lock, 

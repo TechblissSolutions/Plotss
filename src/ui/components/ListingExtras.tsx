@@ -78,25 +78,34 @@ export function ListingLocationMap({ listing: l }: { listing: Listing }) {
   );
 }
 
-/** Fixed bar at the bottom of the screen on phones: contact, WhatsApp and enquiry in one tap. */
+/** Sticky bar at the bottom of the screen, every breakpoint: price (desktop) + call/WhatsApp/enquire in one tap. */
 export function MobileActionBar({ listing, unlocked, phone, unlocking, onUnlock, onEnquire }: {
   listing: Listing; unlocked: boolean; phone?: string; unlocking?: boolean; onUnlock: () => void; onEnquire: () => void;
 }) {
   const digits = (phone ?? '').replace(/\D/g, '');
   const wa = digits ? `https://wa.me/${digits.length === 10 ? '91' + digits : digits}?text=${encodeURIComponent(`Hi, I am interested in the listing: ${listing.title}`)}` : '';
-  const base = 'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-3 text-xs font-bold uppercase tracking-wider';
+  const base = 'flex flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-sm px-4 py-3 text-xs font-bold uppercase tracking-wider whitespace-nowrap';
   return (
-    <div data-no-track-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white p-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:hidden" style={{ paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))' }}>
-      <div className="mx-auto flex max-w-xl gap-2">
-        {unlocked && phone ? (
-          <>
-            <a href={`tel:${phone.replace(/[^+\d]/g, '')}`} className={`${base} paint-graphite text-ivory`}><Phone className="h-4 w-4" /><T k="listing.bar.call">Call</T></a>
-            <a href={wa} target="_blank" rel="noopener noreferrer" className={`${base} paint-moss text-ivory`}><MessageCircle className="h-4 w-4" /><T k="listing.bar.whatsapp">WhatsApp</T></a>
-          </>
-        ) : (
-          <button type="button" onClick={onUnlock} className={`${base} paint-graphite text-ivory`}><Lock className="h-4 w-4" />{unlocking ? '…' : <T k="listing.bar.unlock">Get contact</T>}</button>
-        )}
-        <button type="button" onClick={onEnquire} className={`${base} border border-line text-graphite`}><Send className="h-4 w-4" /><T k="listing.bar.enquire">Enquire</T></button>
+    <div data-no-track-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white p-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]" style={{ paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))' }}>
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-0 sm:px-4">
+        <div className="hidden shrink-0 items-center gap-2 sm:flex">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-clay">Pricing</span>
+          <span className="text-sm font-bold text-graphite">{listing.priceDisplay || 'Contact for price'}</span>
+        </div>
+        <div className="flex flex-1 gap-2">
+          {unlocked && phone ? (
+            <>
+              <a href={`tel:${phone.replace(/[^+\d]/g, '')}`} className={`${base} border border-line text-graphite`}><Phone className="h-4 w-4" /><T k="listing.bar.call">Call</T></a>
+              <button type="button" onClick={onEnquire} className={`${base} paint-clay text-ivory`}><Send className="h-4 w-4" /><T k="listing.bar.enquire">Enquire Now</T></button>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className={`${base} paint-moss text-ivory`}><MessageCircle className="h-4 w-4" /><T k="listing.bar.whatsapp">WhatsApp</T></a>
+            </>
+          ) : (
+            <>
+              <button type="button" onClick={onUnlock} className={`${base} border border-line text-graphite`}><Lock className="h-4 w-4" />{unlocking ? '…' : <T k="listing.bar.unlock">Get contact</T>}</button>
+              <button type="button" onClick={onEnquire} className={`${base} paint-clay text-ivory`}><Send className="h-4 w-4" /><T k="listing.bar.enquire">Enquire Now</T></button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

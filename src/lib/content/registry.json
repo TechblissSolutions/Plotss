@@ -917,7 +917,7 @@
   },
   {
    "key": "listing.bar.enquire",
-   "default": "Enquire",
+   "default": "Enquire Now",
    "file": "components/ListingExtras.tsx"
   },
   {
@@ -932,7 +932,17 @@
   },
   {
    "key": "listing.callback.btn",
-   "default": "Send request",
+   "default": "Send Enquiry",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.callback.fewer",
+   "default": "Fewer details",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.callback.more",
+   "default": "Add more details",
    "file": "components/ListingExtras.tsx"
   },
   {
