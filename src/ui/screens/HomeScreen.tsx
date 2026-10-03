@@ -18,6 +18,21 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   Noida: { lat: 28.5355, lng: 77.391 },
   'New Delhi': { lat: 28.6139, lng: 77.209 },
 };
+
+/**
+ * Cities we plan to expand to but don't serve yet — shown on the map and city list as honest
+ * "Coming soon" pins (no listing count, not clickable into search) so the map reads as a national
+ * platform in progress rather than only 3 dots, without implying live inventory that doesn't exist.
+ */
+const COMING_SOON_CITIES: { name: string; state: string; lat: number; lng: number }[] = [
+  { name: 'Sonipat', state: 'Haryana', lat: 28.9931, lng: 77.0151 },
+  { name: 'Lucknow', state: 'Uttar Pradesh', lat: 26.8467, lng: 80.9462 },
+  { name: 'Ahmedabad', state: 'Gujarat', lat: 23.0225, lng: 72.5714 },
+  { name: 'Bengaluru', state: 'Karnataka', lat: 12.9716, lng: 77.5946 },
+  { name: 'Bhubaneswar', state: 'Odisha', lat: 20.2961, lng: 85.8245 },
+  { name: 'Chandigarh', state: 'Chandigarh', lat: 30.7333, lng: 76.7794 },
+  { name: 'Hyderabad', state: 'Telangana', lat: 17.385, lng: 78.4867 },
+];
 import {
   Sparkles,
   Search,
@@ -88,6 +103,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     if (coord) acc.push({ slug: c.name.toLowerCase().replace(/\s+/g, '-'), name: c.name, state: c.state, lat: coord.lat, lng: coord.lng, plotCount: c.plotCount });
     return acc;
   }, []);
+  const comingSoonMapCities: MapCity[] = COMING_SOON_CITIES.map((c) => ({
+    slug: c.name.toLowerCase().replace(/\s+/g, '-'), name: c.name, state: c.state, lat: c.lat, lng: c.lng, plotCount: 0, comingSoon: true,
+  }));
 
   const verifiedCount = React.useMemo(() => listings.filter((l) => l.verified || l.aiScreened).length, [listings]);
   const avgPrice = React.useMemo(() => {
@@ -563,18 +581,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       </section>
 
-      {/* 5a. INTERACTIVE MAP — hover a pin for its listing count, click to jump into that city's search */}
+      {/* 5a. INTERACTIVE MAP — hover a pin for its listing count, click to jump into that city's search.
+          Coming-soon cities are shown honestly as dimmer, non-clickable pins/cards (no fake listing counts)
+          so the map reads as a national platform in progress rather than just 3 dots. */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <Reveal className="order-2 lg:order-1">
-            <IndiaMap cities={mapCities} onSelectCity={(c) => onSearchQuerySubmit(c.name, 'Buy')} />
+            <IndiaMap cities={[...mapCities, ...comingSoonMapCities]} onSelectCity={(c) => onSearchQuerySubmit(c.name, 'Buy')} />
           </Reveal>
           <Reveal delay={0.1} className="order-1 lg:order-2">
             <span className="text-xs font-bold text-trust uppercase tracking-wider font-tabular">
-              <T k="home.featured-across-ncr">Featured Across NCR</T>
+              <T k="home.featured-across-ncr">Featured Across India</T>
             </span>
             <h2 className="font-serif-headline text-3xl font-bold text-graphite mt-1">
-              <T k="home.top-destinations-title">Our Launch Markets</T>
+              <T k="home.top-destinations-title">Our launch markets, and where we're headed next</T>
             </h2>
             <p className="mt-2 text-sm text-stone max-w-md">
               <T k="home.top-destinations-subtitle">Hover a pin to see live listing counts, or jump straight to a city below.</T>
@@ -592,6 +612,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </div>
                   <ArrowRight className="w-4 h-4 text-clay shrink-0" />
                 </button>
+              ))}
+              {COMING_SOON_CITIES.map((city) => (
+                <div
+                  key={city.name}
+                  className="flex items-center justify-between rounded-md border border-dashed border-line bg-sand/50 p-4 text-left opacity-80"
+                >
+                  <div>
+                    <div className="font-serif-headline font-bold text-stone">{city.name}</div>
+                    <div className="text-xs text-stone mt-0.5">Coming soon</div>
+                  </div>
+                </div>
               ))}
             </div>
             <Link href="/city" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-clay hover:underline">

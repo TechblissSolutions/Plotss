@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 
-export type MapCity = { slug: string; name: string; state: string; lat: number; lng: number; plotCount: number };
+export type MapCity = { slug: string; name: string; state: string; lat: number; lng: number; plotCount: number; comingSoon?: boolean };
 
 const GEO_URL = '/data/india-states.geojson';
 
@@ -50,12 +50,12 @@ export function IndiaMap({ cities, onSelectCity }: { cities: MapCity[]; onSelect
             onMouseEnter={(e) => showTooltip(city, e)}
             onMouseMove={(e) => showTooltip(city, e)}
             onMouseLeave={() => setHovered((h) => (h?.city.slug === city.slug ? null : h))}
-            onClick={() => onSelectCity(city)}
-            className="cursor-pointer"
+            onClick={() => { if (!city.comingSoon) onSelectCity(city); }}
+            className={city.comingSoon ? 'cursor-default' : 'cursor-pointer'}
           >
-            {/* Soft pulse ring behind the pin, like the reference screenshot */}
-            <circle r={14} className="fill-clay/15" />
-            <circle r={5} className="fill-clay stroke-ivory" strokeWidth={2} />
+            {/* Soft pulse ring behind the pin, like the reference screenshot — coming-soon pins are dimmer/smaller, honestly distinct from live markets */}
+            <circle r={city.comingSoon ? 9 : 14} className={city.comingSoon ? 'fill-stone/15' : 'fill-clay/15'} />
+            <circle r={city.comingSoon ? 3.5 : 5} className={city.comingSoon ? 'fill-stone stroke-ivory' : 'fill-clay stroke-ivory'} strokeWidth={2} />
           </Marker>
         ))}
       </ComposableMap>
@@ -66,7 +66,10 @@ export function IndiaMap({ cities, onSelectCity }: { cities: MapCity[]; onSelect
           className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+10px)] whitespace-nowrap rounded-md border border-line bg-white px-3 py-1.5 text-xs font-semibold text-graphite shadow-md"
           style={{ left: hovered.x, top: hovered.y }}
         >
-          {hovered.city.name} <span className="font-normal text-stone">· {hovered.city.plotCount} {hovered.city.plotCount === 1 ? 'listing' : 'listings'}</span>
+          {hovered.city.name}{' '}
+          <span className="font-normal text-stone">
+            · {hovered.city.comingSoon ? 'Coming soon' : `${hovered.city.plotCount} ${hovered.city.plotCount === 1 ? 'listing' : 'listings'}`}
+          </span>
         </div>
       )}
     </div>

@@ -657,7 +657,7 @@
   },
   {
    "key": "home.featured-across-ncr",
-   "default": "Featured Across NCR",
+   "default": "Featured Across India",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -897,7 +897,7 @@
   },
   {
    "key": "home.top-destinations-title",
-   "default": "Our Launch Markets",
+   "default": "Our launch markets, and where we're headed next",
    "file": "screens/HomeScreen.tsx"
   },
   {
