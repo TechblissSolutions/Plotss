@@ -160,7 +160,8 @@ export function CallbackCard({ onSubmit }: { onSubmit: (d: CallbackDetails) => P
     if (err) { setError(err); setState('idle'); } else setState('done');
   };
 
-  const field = 'w-full rounded-sm border border-line bg-ivory p-2.5 text-sm focus:border-graphite focus:outline-none';
+  const fieldBase = 'rounded-sm border border-line bg-ivory p-2.5 text-sm focus:border-graphite focus:outline-none';
+  const field = `${fieldBase} w-full`;
   return (
     <div id="callback-card" className="rounded-md border border-line bg-white p-5 shadow-xs">
       <h3 className="font-serif-headline text-lg font-bold text-graphite"><T k="listing.callback.title">Get a callback</T></h3>
@@ -179,8 +180,8 @@ export function CallbackCard({ onSubmit }: { onSubmit: (d: CallbackDetails) => P
             <>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional)" autoComplete="email" className={field} />
               <div className="flex gap-2">
-                <input value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area required" inputMode="numeric" className={`${field} flex-1`} />
-                <select value={areaUnit} onChange={(e) => setAreaUnit(e.target.value as CallbackDetails['areaUnit'])} aria-label="Area unit" className={`${field} w-28 shrink-0`}>
+                <input value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area required" inputMode="numeric" className={`${fieldBase} min-w-0 flex-1`} />
+                <select value={areaUnit} onChange={(e) => setAreaUnit(e.target.value as CallbackDetails['areaUnit'])} aria-label="Area unit" className={`${fieldBase} w-28 shrink-0`}>
                   <option value="sq ft">sq ft</option>
                   <option value="acres">acres</option>
                 </select>
