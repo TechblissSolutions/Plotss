@@ -1,0 +1,66 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  # Default tier: no secrets, no live database. Deliberately does NOT set NEXT_PUBLIC_SUPABASE_URL /
+  # SUPABASE_SERVICE_ROLE_KEY etc. as repo/CI secrets, so the app boots in demo mode and /api/dev-login
+  # is reachable (see playwright.config.ts). This is what runs on every push and PR.
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests (demo mode)
+      run: npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+
+  # Live tier: opt-in only. Requires E2E_SUPABASE_URL / E2E_SUPABASE_SERVICE_ROLE_KEY (or the app's own
+  # NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) as repo secrets, pointing at a DEDICATED
+  # non-production Supabase project — never the production one PLOTSS actually runs on. This is what
+  # proves the cross-tenant RLS isolation guarantee (broker-dashboard.spec.ts); see e2e/README.md.
+  # Left commented out until those secrets exist for a staging project — uncomment the `if:` line once
+  # they're added under Settings > Secrets and you've confirmed the URL is NOT production's.
+  # test-live:
+  #   timeout-minutes: 60
+  #   runs-on: ubuntu-latest
+  #   # if: false # flip to true only once a non-production Supabase project's secrets are configured
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: actions/setup-node@v4
+  #     with:
+  #       node-version: lts/*
+  #   - name: Install dependencies
+  #     run: npm ci
+  #   - name: Install Playwright Browsers
+  #     run: npx playwright install --with-deps
+  #   - name: Run Playwright tests (live tier)
+  #     env:
+  #       E2E_RUN_LIVE: 'true'
+  #       E2E_CONFIRM_NOT_PRODUCTION: 'true'
+  #       E2E_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
+  #       E2E_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.E2E_SUPABASE_SERVICE_ROLE_KEY }}
+  #       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
+  #       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.E2E_SUPABASE_ANON_KEY }}
+  #       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.E2E_SUPABASE_SERVICE_ROLE_KEY }}
+  #     run: npx playwright test
+  #   - uses: actions/upload-artifact@v4
+  #     if: ${{ !cancelled() }}
+  #     with:
+  #       name: playwright-report-live
+  #       path: playwright-report/
+  #       retention-days: 30

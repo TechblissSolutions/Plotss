@@ -1,0 +1,120 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/*
+  Every design token below is a CSS variable injected at request time from the
+  super-admin theme settings (see src/lib/theme/css.ts). The block that follows
+  is only the first-paint fallback used if the theme fails to load.
+*/
+:root {
+  --c-graphite: #0f172a; --f-graphite: #0f172a;
+  --c-clay: #b45309;     --f-clay: linear-gradient(135deg, #b45309, #92400e);
+  --c-trust: #1e3a8a;    --f-trust: #1e3a8a;
+  --c-ivory: #f8fafc;    --f-ivory: #f8fafc;
+  --c-signal: #c8ff4d;   --f-signal: #c8ff4d;
+  --c-stone: #64748b;    --f-stone: #64748b;
+  --c-moss: #3d5a40;     --f-moss: #3d5a40;
+  --c-line: #e2e8f0;     --f-line: #e2e8f0;
+  --t-font-heading: "Fraunces", serif;
+  --t-font-body: "Inter", sans-serif;
+  --t-font-data: "Inter Tight", sans-serif;
+  --t-weight-heading: 500; --t-weight-body: 400;
+  --t-base: 16px; --t-lh-body: 1.6; --t-lh-heading: 1.1; --t-tracking-heading: -0.02em;
+  --t-h6: 1rem; --t-h5: 1.25rem; --t-h4: 1.563rem; --t-h3: 1.953rem;
+  --t-h2: 2.441rem; --t-h1: 3.052rem; --t-display: 4.768rem;
+  --t-radius-sm: 8px; --t-radius: 14px; --t-radius-lg: 22px;
+  --t-border: 1px; --t-container: 1240px; --t-section-y: 96px; --t-shadow: 0 8px 30px rgb(22 24 27 / 0.08);
+}
+
+@theme inline {
+  --color-graphite: var(--c-graphite);
+  --color-clay: var(--c-clay);
+  --color-trust: var(--c-trust);
+  --color-ivory: var(--c-ivory);
+  --color-signal: var(--c-signal);
+  --color-stone: var(--c-stone);
+  --color-moss: var(--c-moss);
+  --color-line: var(--c-line);
+  /* derived shades, so ported UI follows the admin theme */
+  --color-mist: color-mix(in srgb, var(--c-stone) 65%, var(--c-ivory));
+  --color-sand: color-mix(in srgb, var(--c-line) 55%, var(--c-ivory));
+  --color-ink-2: color-mix(in srgb, var(--c-graphite) 85%, white);
+  --color-ink-3: color-mix(in srgb, var(--c-graphite) 92%, white);
+  --color-ink-4: color-mix(in srgb, var(--c-graphite) 80%, white);
+  --color-clay-dark: color-mix(in srgb, var(--c-clay) 82%, black);
+  --font-serif: var(--t-font-heading);
+
+  --font-display: var(--t-font-heading);
+  --font-sans: var(--t-font-body);
+  --font-data: var(--t-font-data);
+
+  --radius-sm: var(--t-radius-sm);
+  --radius-md: var(--t-radius);
+  --radius-lg: var(--t-radius-lg);
+
+  --shadow-card: var(--t-shadow);
+}
+
+/* Gradient-aware fills: `paint-clay` renders the solid colour or the admin's gradient. */
+@utility paint-graphite { background: var(--f-graphite); }
+@utility paint-clay { background: var(--f-clay); }
+@utility paint-trust { background: var(--f-trust); }
+@utility paint-ivory { background: var(--f-ivory); }
+@utility paint-signal { background: var(--f-signal); }
+@utility paint-stone { background: var(--f-stone); }
+@utility paint-moss { background: var(--f-moss); }
+
+@utility container-site {
+  width: 100%;
+  max-width: var(--t-container);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+@utility section-y {
+  padding-block: var(--t-section-y);
+}
+@utility hairline {
+  border: var(--t-border) solid var(--c-line);
+}
+
+html { font-size: var(--t-base); }
+
+body {
+  background: var(--f-ivory);
+  background-attachment: fixed;
+  color: var(--c-graphite);
+  font-family: var(--t-font-body);
+  font-weight: var(--t-weight-body);
+  line-height: var(--t-lh-body);
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--t-font-heading);
+  font-weight: var(--t-weight-heading);
+  line-height: var(--t-lh-heading);
+  letter-spacing: var(--t-tracking-heading);
+}
+/* Heading sizes come from utility classes (or --t-h1..h6 where a page opts in), not element defaults. */
+
+.font-serif-headline { font-family: var(--t-font-heading); font-optical-sizing: auto; }
+.font-tabular { font-family: var(--t-font-data); font-variant-numeric: tabular-nums; }
+
+.text-display { font-size: var(--t-display); }
+.num { font-family: var(--t-font-data); font-variant-numeric: tabular-nums; }
+
+/* AI micro-pattern: every AI-generated element carries this tag. */
+.ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15em 0.55em;
+  border-radius: var(--t-radius-sm);
+  background: var(--f-signal);
+  color: var(--c-graphite);
+  font-family: var(--t-font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}

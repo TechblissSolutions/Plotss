@@ -1,0 +1,1268 @@
+{
+ "texts": [
+  {
+   "key": "about.crumb",
+   "default": "About us",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.intro",
+   "default": "PLOTSS is a marketplace for land in India. We help owners list land and help buyers find it, starting with Ghaziabad, Noida and New Delhi.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.mission.h",
+   "default": "Our promise",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.mission.p",
+   "default": "We will keep the process honest and simple, so that a buyer, an owner and a broker all know what is happening at each step.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.s1.l",
+   "default": "Launch cities",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.s1.n",
+   "default": "3",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.s2.l",
+   "default": "Listings screened",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.s2.n",
+   "default": "100%",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.s3.l",
+   "default": "To post a listing",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.s3.n",
+   "default": "Free",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.story.h",
+   "default": "Why we built it",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.story.p1",
+   "default": "Buying land is one of the biggest decisions a family or a business makes. Yet the information is scattered, prices are unclear and it is hard to know who to trust.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.story.p2",
+   "default": "PLOTSS puts land listings in one place, explains each one in simple language, and checks it for warning signs before buyers see it.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.title",
+   "default": "About PLOTSS",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "about.v1.d",
+   "default": "Every listing shows size, price, location and land use in plain words. No guessing.",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.v1.t",
+   "default": "Clear information",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.v2.d",
+   "default": "Buyers reach owners without a long chain of middlemen. Contact details are shown only to signed-in buyers.",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.v2.t",
+   "default": "Direct contact",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.v3.d",
+   "default": "Each listing goes through an automatic risk screen and is reviewed before it goes live.",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.v3.t",
+   "default": "Safety checks",
+   "file": "pages/about"
+  },
+  {
+   "key": "about.values.h",
+   "default": "What we stand for",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "blog.index.all-tag",
+   "default": "All",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.cta-browse",
+   "default": "Browse listings",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.cta-post",
+   "default": "Post a listing",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.cta-subtitle",
+   "default": "Browse checked listings in Ghaziabad, Noida and New Delhi, or list your own land for free.",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.cta-title",
+   "default": "Ready to look at real land?",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.empty",
+   "default": "No articles here yet.",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.empty-cta",
+   "default": "See all articles",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.pager-newer",
+   "default": "← Newer",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.pager-older",
+   "default": "Older →",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.subtitle",
+   "default": "Guides and market notes for land buyers and owners in Ghaziabad, Noida and New Delhi.",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.index.title",
+   "default": "PLOTSS Journal",
+   "file": "(site)/blog/page.tsx"
+  },
+  {
+   "key": "blog.post.aside-cta",
+   "default": "Browse listings",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
+   "key": "blog.post.aside-subtitle",
+   "default": "Browse checked listings and contact owners directly.",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
+   "key": "blog.post.aside-title",
+   "default": "Looking for land in Ghaziabad, Noida or New Delhi?",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
+   "key": "blog.post.related-title",
+   "default": "Keep reading",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
+   "key": "blog.post.share",
+   "default": "Share",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
+   "key": "chip.frontage",
+   "default": "Frontage",
+   "file": "pages/chip"
+  },
+  {
+   "key": "chip.highway",
+   "default": "Highway",
+   "file": "pages/chip"
+  },
+  {
+   "key": "chip.power",
+   "default": "Power",
+   "file": "pages/chip"
+  },
+  {
+   "key": "chip.road",
+   "default": "Road access",
+   "file": "pages/chip"
+  },
+  {
+   "key": "chip.water",
+   "default": "Water",
+   "file": "pages/chip"
+  },
+  {
+   "key": "contact.area.p",
+   "default": "Serving Ghaziabad, Noida and New Delhi.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.crumb",
+   "default": "Contact",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.email",
+   "default": "hello@plotss.in",
+   "file": "pages/contact"
+  },
+  {
+   "key": "contact.email.h",
+   "default": "Email",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.hours.h",
+   "default": "Office hours",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.hours.p",
+   "default": "Monday to Saturday, 10 AM to 7 PM India time.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.intro",
+   "default": "Questions about a listing, posting land or working with us? Write or call and we will get back within one working day.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.listing.note",
+   "default": "To ask about one specific listing, open it and use the Enquire button so the owner gets your message directly.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.phone",
+   "default": "+91 90000 00000",
+   "file": "pages/contact"
+  },
+  {
+   "key": "contact.phone.h",
+   "default": "Phone",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.title",
+   "default": "Contact us",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.wa.h",
+   "default": "WhatsApp",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "contact.whatsapp",
+   "default": "+91 90000 00000",
+   "file": "pages/contact"
+  },
+  {
+   "key": "faq.a1",
+   "default": "Yes. Posting a listing is free at launch. Every listing is checked before it goes live.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.a2",
+   "default": "Open a listing, sign in with Google or your phone number, and choose Unlock contact. There is a daily limit to protect owners from spam.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.a3",
+   "default": "Our system reads the listing and flags warning signs such as unusual prices or missing details. It is a first check, not a legal guarantee.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.a4",
+   "default": "At launch we do not collect documents online. Documents are normally shared after a direct meeting. Always check title papers with a lawyer before paying.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.a5",
+   "default": "We start with Ghaziabad, then Noida and New Delhi. More cities will follow.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.a6",
+   "default": "Broker features are coming soon. Until then, please post as an owner or contact us.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.a7",
+   "default": "Open your seller dashboard from the menu. You can see the status of each listing there. For changes, contact us and we will help.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.a8",
+   "default": "Yes. Contact details are kept private and are shown only to signed-in buyers, with daily limits.",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.crumb",
+   "default": "FAQ",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "faq.intro",
+   "default": "Quick answers about buying, selling and how PLOTSS works.",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "faq.more",
+   "default": "Still have a question?",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "faq.more.link",
+   "default": "Contact us",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "faq.q1",
+   "default": "Is it free to post a listing?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.q2",
+   "default": "How do I get the owner contact details?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.q3",
+   "default": "What does AI-screened mean?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.q4",
+   "default": "Are the documents verified?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.q5",
+   "default": "Which cities do you cover?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.q6",
+   "default": "Can brokers use PLOTSS?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.q7",
+   "default": "How do I remove or change my listing?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.q8",
+   "default": "Is my phone number safe?",
+   "file": "pages/faq"
+  },
+  {
+   "key": "faq.title",
+   "default": "Frequently asked questions",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "footer.about",
+   "default": "About",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.cat.all",
+   "default": "All listings",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.cat.commercial",
+   "default": "Commercial land",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.cat.industrial",
+   "default": "Industrial land",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.cat.residential",
+   "default": "Residential plots",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.cat.warehousing",
+   "default": "Warehousing land",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.city.delhi",
+   "default": "Land in New Delhi",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.city.ghaziabad",
+   "default": "Land in Ghaziabad",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.city.noida",
+   "default": "Land in Noida",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.company.about",
+   "default": "About us",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.company.contact",
+   "default": "Contact",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.company.faq",
+   "default": "FAQ",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.contact",
+   "default": "Contact",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.faq",
+   "default": "FAQ",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.gujrera-verified",
+   "default": "GUJRERA Verified",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.india-s-premier-ai-powered-marketplace",
+   "default": "A land marketplace for Ghaziabad, Noida and New Delhi. Find industrial, commercial and residential land, and contact owners directly.",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.journal",
+   "default": "Journal",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.land-categories",
+   "default": "Land categories",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.maharera-compliant",
+   "default": "MAHARERA Compliant",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.platform-due-diligence",
+   "default": "Company",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.plotss",
+   "default": "PLOTSS",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.post",
+   "default": "Post a listing (free)",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.privacy",
+   "default": "Privacy Policy",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.rera",
+   "default": "RERA Disclaimer",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.terms",
+   "default": "Terms of Service",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.tnrera-registered",
+   "default": "TNRERA Registered",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "footer.top-micro-markets",
+   "default": "Cities",
+   "file": "components/Footer.tsx"
+  },
+  {
+   "key": "header.broker-profile",
+   "default": "Broker Profile",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.explore-all-plots",
+   "default": "Explore All Plots",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.explore-plots",
+   "default": "Explore Plots",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.india-s-ai-land-marketplace",
+   "default": "India's AI Land Marketplace",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.industrial-land",
+   "default": "Industrial Land",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.plotss",
+   "default": "PLOTSS",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.verified-brokers",
+   "default": "Verified Brokers",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "header.warehouses-logistics",
+   "default": "Warehouses & Logistics",
+   "file": "components/Header.tsx"
+  },
+  {
+   "key": "home.ai-match-algorithm",
+   "default": "AI Match Algorithm →",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.ai-signature-selections",
+   "default": "AI Signature Selections",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.are-you-an-industrial-broker-or",
+   "default": "Are you an Industrial Broker or Land Consultant?",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.cat-commercial",
+   "default": "Commercial and mixed-use land listings for offices, retail and campuses.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.cat-industrial",
+   "default": "Industrial plots and land with power, road access and zoning details.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.cat-residential",
+   "default": "Residential plots and plotted developments in growth corridors.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.cat-warehousing",
+   "default": "Logistics and warehousing land near highways and freight corridors.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.channel-partner-network",
+   "default": "Channel Partner Network",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.cities-subtitle",
+   "default": "Land listings across Ghaziabad, Noida and New Delhi.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.cities-title",
+   "default": "Explore Our Launch Cities",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.deal-closure-support",
+   "default": "Deal Closure Support →",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.dgps-physical-boundary-survey",
+   "default": "Boundary & Site Survey",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.direct-verification-of-government-revenue-land",
+   "default": "We check the government land records (khasra/khatauni, registered mutation entries) and the sub-registrar's encumbrance certificate to confirm the seller owns the land and it is free of pending disputes.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.every-plot-carrying-our-deep-moss",
+   "default": "Every plot carrying our Deep Moss badge has passed four rigorous legal and physical verification gates before going live.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.explore-by-land-classification",
+   "default": "Explore by Land Classification",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.featured-title",
+   "default": "Featured Land Listings",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.geographic-coverage",
+   "default": "Geographic Coverage",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.hero-subtitle",
+   "default": "Buy, lease or sell industrial, commercial and residential land in Ghaziabad, Noida and New Delhi. Describe what you need in plain language and we show matching listings.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.hero-title",
+   "default": "Find Industrial & Commercial Land in Ghaziabad, Noida and New Delhi.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.hero.title",
+   "default": "Default text",
+   "file": "content.tsx"
+  },
+  {
+   "key": "home.how-plotss-accelerates-land-acquisition",
+   "default": "How PLOTSS Accelerates Land Acquisition",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-step2-text",
+   "default": "Every new listing is checked for red flags before it is published. Ask the owner for papers when you meet, and have your lawyer verify them.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-step2-title",
+   "default": "Screened Listings",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-step3-tag",
+   "default": "Direct contact →",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-step3-text",
+   "default": "Sign in to unlock the owner's phone number. Speak directly and arrange a site visit.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-step3-title",
+   "default": "Contact the Owner",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-step4-text",
+   "default": "Inspect the land with your lawyer, agree terms with the owner and complete the paperwork.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-step4-title",
+   "default": "Visit & Close",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.how-subtitle",
+   "default": "One place to search, shortlist and reach owners directly. New listings are screened before they go live.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.industrial-land-due-diligence-insights",
+   "default": "Industrial Land Due Diligence Insights",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.institutional-protocol",
+   "default": "Institutional Protocol",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.institutional-trust",
+   "default": "Institutional Trust",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.list-your-client-mandates-with-ai",
+   "default": "List your client mandates with AI-generated dossiers, receive direct institutional buyer leads with verified budgets, and showcase your verified RERA credential page.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.market-intelligence",
+   "default": "Market Intelligence",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.natural-language-parser-active",
+   "default": "Natural-Language Parser Active",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.natural-language-search",
+   "default": "Natural-Language Search",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.open-broker-dashboard",
+   "default": "Open Broker Dashboard",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.ownership-30-year-title-search",
+   "default": "Ownership & Title Check",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.prime-districts-eyebrow",
+   "default": "Prime Micro-Markets",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.prime-districts-subtitle",
+   "default": "The corridors buyers search for most, right now.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.prime-districts-title",
+   "default": "Jump straight to an area",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.query-by-required-acreage-power-substation",
+   "default": "Query by required acreage, power substation load, 40-foot trailer road frontage, or target budget in plain language.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.stats.cities-label",
+   "default": "Cities",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.stats.deals-label",
+   "default": "Deals Closed",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.stats.plots-label",
+   "default": "Verified Plots",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.stats.plots-label-all",
+   "default": "Live Listings",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.statutory-approvals-nocs",
+   "default": "Approvals & Land-Use Checks",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.sub-meter-accurate-differential-gps-coordinate",
+   "default": "A precise site survey confirms the plot's exact corner boundaries, checks for any encroachment, and verifies the actual road frontage width.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-1-name",
+   "default": "Rohit Sharma",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-1-quote",
+   "default": "\"We were looking for a plot near Indirapuram for over a year. PLOTSS showed us the land records and mutation status upfront, so we knew what we were buying before the first visit.\"",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-1-role",
+   "default": "Buyer, Ghaziabad",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-1-tag",
+   "default": "Ghaziabad",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-2-name",
+   "default": "Priya Verma",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-2-quote",
+   "default": "\"The site survey confirmed the boundary and road frontage exactly as listed. No surprises when our own engineer inspected the plot in Noida.\"",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-2-role",
+   "default": "Buyer, Noida",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-2-tag",
+   "default": "Noida",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-3-name",
+   "default": "Anil Khanna",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-3-quote",
+   "default": "\"Listing our family plot in New Delhi was simple — the AI helped write a clear description, and we started getting genuine buyer enquiries within days.\"",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-3-role",
+   "default": "Owner, New Delhi",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.testimonial-3-tag",
+   "default": "New Delhi",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.ticker-note",
+   "default": "New listings are screened before they go live",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.trusted-by-manufacturing-leaders-3pl-funds",
+   "default": "Trusted by Buyers & Owners in NCR",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.unlock-details",
+   "default": "Unlock Details",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.verification-of-collector-non-agriculture-na",
+   "default": "We verify the land-use conversion order, master plan zoning with the local development authority, pollution board clearance (where applicable), and road-access permissions.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.view-public-broker-profile",
+   "default": "View Public Broker Profile",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.what-does-verified-actually-mean-on",
+   "default": "What does \"Verified\" actually mean on PLOTSS?",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.zoning-asset-classes",
+   "default": "Zoning & Asset Classes",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "listing.bar.call",
+   "default": "Call",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.bar.enquire",
+   "default": "Enquire",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.bar.unlock",
+   "default": "Get contact",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.bar.whatsapp",
+   "default": "WhatsApp",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.callback.btn",
+   "default": "Send request",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.callback.privacy",
+   "default": "We respect your privacy. No spam.",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.callback.sub",
+   "default": "An advisor will call you within 2 business hours.",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.callback.thanks",
+   "default": "Thank you. We will call you soon.",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.callback.title",
+   "default": "Get a callback",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.map.directions",
+   "default": "Get directions",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.map.note",
+   "default": "The pin shows the approximate area. The exact address is shared by the owner.",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.map.note.approx",
+   "default": "The seller has not added an exact pin yet, so the map shows the general area. The exact address is shared by the owner.",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.map.title",
+   "default": "Location on map",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "listing.specs.title",
+   "default": "Land details",
+   "file": "components/ListingExtras.tsx"
+  },
+  {
+   "key": "page.cta.browse",
+   "default": "Browse listings",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "page.cta.post",
+   "default": "Post a listing free",
+   "file": "pages/StaticPages.tsx"
+  },
+  {
+   "key": "post.eyebrow",
+   "default": "Seller & Broker Portal",
+   "file": "screens/PostPropertyScreen.tsx"
+  },
+  {
+   "key": "post.subtitle",
+   "default": "Fill in the details, no account needed until the last step. Our team reviews your documents before the listing goes live.",
+   "file": "screens/PostPropertyScreen.tsx"
+  },
+  {
+   "key": "post.subtitle-nodocs",
+   "default": "Fill in the details, no account needed until the last step. Our team reviews every new listing before it goes live.",
+   "file": "screens/PostPropertyScreen.tsx"
+  },
+  {
+   "key": "post.title",
+   "default": "Post your land",
+   "file": "screens/PostPropertyScreen.tsx"
+  },
+  {
+   "key": "privacy.crumb",
+   "default": "Privacy Policy",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.intro",
+   "default": "This page explains what we collect, why, and the choices you have.",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s1.h",
+   "default": "What we collect",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s1.p",
+   "default": "Your name, email or phone number when you sign in, the listings you post, and your messages to owners. With your consent we also record which pages and buttons are used so we can improve the site.",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s2.h",
+   "default": "How we use it",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s2.p",
+   "default": "To run your account, show listings, connect buyers with owners, prevent misuse and improve the service.",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s3.h",
+   "default": "Who sees your details",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s3.p",
+   "default": "Owner phone numbers are shown only to signed-in buyers, with daily limits. We do not sell your personal data.",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s4.h",
+   "default": "Analytics and cookies",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s4.p",
+   "default": "We use our own privacy-friendly analytics only after you accept the banner. We never record what you type. You can decline and the site still works.",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s5.h",
+   "default": "How long we keep data",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s5.p",
+   "default": "Analytics events are deleted after 13 months. Account and listing data is kept while your account is active.",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s6.h",
+   "default": "Your choices",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.s6.p",
+   "default": "You can ask us to see, correct or delete your data by writing to us from the Contact page.",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "privacy.title",
+   "default": "Privacy Policy",
+   "file": "pages/privacy"
+  },
+  {
+   "key": "rera.crumb",
+   "default": "RERA Disclaimer",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.intro",
+   "default": "Please read this before relying on any listing.",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.s1.h",
+   "default": "Information only",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.s1.p",
+   "default": "Listings are posted by owners and are shown for information. PLOTSS does not confirm that a listing is registered under RERA or any other law unless it clearly says so.",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.s2.h",
+   "default": "Do your own checks",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.s2.p",
+   "default": "Before buying, check the registration, title, land use, dues and approvals with the relevant authority and a qualified lawyer.",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.s3.h",
+   "default": "AI screening",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.s3.p",
+   "default": "The AI-screened label means an automatic check found no obvious warning signs. It is not a legal verification.",
+   "file": "pages/rera"
+  },
+  {
+   "key": "rera.title",
+   "default": "RERA Disclaimer",
+   "file": "pages/rera"
+  },
+  {
+   "key": "spec.area",
+   "default": "Area",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.by",
+   "default": "Listed by",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.category",
+   "default": "Category",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.far",
+   "default": "Floor area ratio",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.frontage",
+   "default": "Frontage",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.location",
+   "default": "Location",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.power",
+   "default": "Power",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.price",
+   "default": "Price",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.rate",
+   "default": "Rate",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.road",
+   "default": "Road access",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.type",
+   "default": "Listing type",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.water",
+   "default": "Water",
+   "file": "pages/spec"
+  },
+  {
+   "key": "spec.zone",
+   "default": "Land use / zone",
+   "file": "pages/spec"
+  },
+  {
+   "key": "terms.crumb",
+   "default": "Terms of Service",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.intro",
+   "default": "Please read these terms before using PLOTSS. By using the site you agree to them.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s1.h",
+   "default": "What PLOTSS is",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s1.p",
+   "default": "PLOTSS is an online marketplace where owners list land and buyers find it. We are not a party to any sale and we do not act as a broker or lawyer unless we say so in writing.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s2.h",
+   "default": "Your account",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s2.p",
+   "default": "Give true details and keep your login safe. You are responsible for what happens under your account.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s3.h",
+   "default": "Listings",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s3.p",
+   "default": "Sellers must own the land or have written permission to list it, and must give accurate details. We may reject, edit or remove any listing that looks wrong or unsafe.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s4.h",
+   "default": "Buying safely",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s4.p",
+   "default": "Listing information is given by sellers. Always visit the site, check title papers and take legal advice before you pay any money.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s5.h",
+   "default": "Not allowed",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s5.p",
+   "default": "Do not post false listings, copy contact details in bulk, harass other users or try to break the site.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s6.h",
+   "default": "Liability",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s6.p",
+   "default": "PLOTSS gives information as it is provided to us and is not responsible for deals between users, to the extent the law allows.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s7.h",
+   "default": "Changes",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.s7.p",
+   "default": "We may update these terms from time to time. Continued use means you accept the new terms.",
+   "file": "pages/terms"
+  },
+  {
+   "key": "terms.title",
+   "default": "Terms of Service",
+   "file": "pages/terms"
+  }
+ ],
+ "sections": [
+  "footer.rera-badges",
+  "home.testimonials"
+ ]
+}
