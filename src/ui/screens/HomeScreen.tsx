@@ -12,11 +12,12 @@ import { IndiaMap, type MapCity } from '../components/IndiaMap';
 import { mapsHref } from '@/lib/geo';
 import { formatINR } from '@/lib/format';
 
-/** Approximate city-centre coordinates for the launch cities' map pins. */
-const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
-  Ghaziabad: { lat: 28.6692, lng: 77.4538 },
-  Noida: { lat: 28.5355, lng: 77.391 },
-  'New Delhi': { lat: 28.6139, lng: 77.209 },
+/** Pin position on the India map image, as left%/top% (not real lat/lng — see IndiaMap.tsx). Ghaziabad,
+ * Noida and New Delhi sit a few km apart in reality, which renders as one tight NCR cluster at this scale. */
+const CITY_COORDS: Record<string, { leftPct: number; topPct: number }> = {
+  Ghaziabad: { leftPct: 31.9, topPct: 32.6 },
+  Noida: { leftPct: 31.5, topPct: 33.1 },
+  'New Delhi': { leftPct: 30.6, topPct: 32.9 },
 };
 
 /**
@@ -24,14 +25,14 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
  * "Coming soon" pins (no listing count, not clickable into search) so the map reads as a national
  * platform in progress rather than only 3 dots, without implying live inventory that doesn't exist.
  */
-const COMING_SOON_CITIES: { name: string; state: string; lat: number; lng: number }[] = [
-  { name: 'Sonipat', state: 'Haryana', lat: 28.9931, lng: 77.0151 },
-  { name: 'Lucknow', state: 'Uttar Pradesh', lat: 26.8467, lng: 80.9462 },
-  { name: 'Ahmedabad', state: 'Gujarat', lat: 23.0225, lng: 72.5714 },
-  { name: 'Bengaluru', state: 'Karnataka', lat: 12.9716, lng: 77.5946 },
-  { name: 'Bhubaneswar', state: 'Odisha', lat: 20.2961, lng: 85.8245 },
-  { name: 'Chandigarh', state: 'Chandigarh', lat: 30.7333, lng: 76.7794 },
-  { name: 'Hyderabad', state: 'Telangana', lat: 17.385, lng: 78.4867 },
+const COMING_SOON_CITIES: { name: string; state: string; leftPct: number; topPct: number }[] = [
+  { name: 'Sonipat', state: 'Haryana', leftPct: 30.3, topPct: 31.9 },
+  { name: 'Lucknow', state: 'Uttar Pradesh', leftPct: 42.9, topPct: 37.4 },
+  { name: 'Ahmedabad', state: 'Gujarat', leftPct: 16.1, topPct: 47.2 },
+  { name: 'Bengaluru', state: 'Karnataka', leftPct: 32.2, topPct: 72.9 },
+  { name: 'Bhubaneswar', state: 'Odisha', leftPct: 58.5, topPct: 54.2 },
+  { name: 'Chandigarh', state: 'Chandigarh', leftPct: 29.6, topPct: 27.5 },
+  { name: 'Hyderabad', state: 'Telangana', leftPct: 35.0, topPct: 61.6 },
 ];
 import {
   Sparkles,
@@ -100,11 +101,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const mapCities: MapCity[] = cities.reduce<MapCity[]>((acc, c) => {
     const coord = CITY_COORDS[c.name];
-    if (coord) acc.push({ slug: c.name.toLowerCase().replace(/\s+/g, '-'), name: c.name, state: c.state, lat: coord.lat, lng: coord.lng, plotCount: c.plotCount });
+    if (coord) acc.push({ slug: c.name.toLowerCase().replace(/\s+/g, '-'), name: c.name, state: c.state, leftPct: coord.leftPct, topPct: coord.topPct, plotCount: c.plotCount });
     return acc;
   }, []);
   const comingSoonMapCities: MapCity[] = COMING_SOON_CITIES.map((c) => ({
-    slug: c.name.toLowerCase().replace(/\s+/g, '-'), name: c.name, state: c.state, lat: c.lat, lng: c.lng, plotCount: 0, comingSoon: true,
+    slug: c.name.toLowerCase().replace(/\s+/g, '-'), name: c.name, state: c.state, leftPct: c.leftPct, topPct: c.topPct, plotCount: 0, comingSoon: true,
   }));
 
   const verifiedCount = React.useMemo(() => listings.filter((l) => l.verified || l.aiScreened).length, [listings]);

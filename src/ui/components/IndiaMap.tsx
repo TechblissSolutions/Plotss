@@ -1,77 +1,73 @@
 'use client';
-import React, { useRef, useState } from 'react';
-import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
+import React, { useState } from 'react';
 
-export type MapCity = { slug: string; name: string; state: string; lat: number; lng: number; plotCount: number; comingSoon?: boolean };
-
-const GEO_URL = '/data/india-states.geojson';
+/** leftPct/topPct are position-on-the-map-image percentages (0-100), not real lat/lng — see INDIA_PATH note below. */
+export type MapCity = { slug: string; name: string; state: string; leftPct: number; topPct: number; plotCount: number; comingSoon?: boolean };
 
 /**
- * India outline (real state boundaries, simplified from a public GeoJSON — see public/data/india-states.geojson)
- * with a pin per active city. Hover shows a tooltip right above that pin; click jumps straight into that
- * city's search results — the same destination as clicking the matching city card beside the map.
+ * India outline as a single static SVG path (400x500 viewBox) with cities placed by pre-computed
+ * left/top percentage, not a live geo-projection. The previous version used react-simple-maps + a
+ * simplified public GeoJSON (public/data/india-states.geojson); that file's simplification pass
+ * cropped/distorted badly at this map's small render size (small states lost their outline entirely,
+ * and the Mercator projection's scale/center needed constant retuning). A fixed hand-placed outline
+ * is simpler, renders identically everywhere, and is the same technique real estate reference sites
+ * use for this exact "dots on India" pattern.
  */
-export function IndiaMap({ cities, onSelectCity }: { cities: MapCity[]; onSelectCity: (city: MapCity) => void }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState<{ city: MapCity; x: number; y: number } | null>(null);
+const INDIA_PATH =
+  'M133.0 76.4 L134.4 75.2 L135.9 75.7 L137.0 73.5 L144.2 71.6 L144.9 70.3 L147.1 71.0 L151.1 70.1 L152.4 70.4 L153.0 71.9 L154.0 71.3 L155.7 74.6 L157.5 75.4 L159.5 75.0 L159.1 75.7 L160.2 77.3 L162.1 75.4 L164.8 76.6 L163.2 78.2 L163.1 80.1 L162.0 81.2 L162.1 84.1 L160.5 86.5 L156.8 87.5 L156.9 89.4 L153.2 89.7 L154.5 92.5 L153.0 93.1 L151.9 95.5 L146.7 95.1 L145.3 95.9 L147.9 100.2 L145.5 100.4 L146.0 103.5 L148.1 105.8 L151.9 105.9 L151.0 108.3 L153.8 111.4 L153.7 112.5 L152.0 114.5 L150.2 114.0 L148.4 115.0 L148.0 116.4 L146.3 116.8 L143.9 115.0 L143.4 112.2 L139.0 114.3 L140.2 117.6 L143.9 121.2 L142.9 123.6 L144.8 126.1 L143.1 127.4 L144.1 128.2 L143.9 129.9 L145.4 130.2 L148.0 128.1 L152.2 133.6 L154.4 134.7 L156.3 133.8 L157.8 134.3 L158.6 135.4 L162.6 136.9 L162.3 139.3 L167.3 140.7 L172.7 143.5 L172.3 144.3 L171.1 143.8 L169.1 146.6 L164.2 149.9 L164.7 151.8 L162.6 153.8 L163.3 156.9 L161.4 158.1 L160.5 161.7 L166.1 165.2 L165.9 163.8 L166.8 163.5 L171.2 166.4 L175.0 167.7 L176.4 170.6 L178.0 170.2 L178.4 171.2 L183.6 174.1 L186.0 173.2 L190.8 176.4 L194.1 175.8 L194.5 178.6 L200.3 179.2 L201.9 180.8 L203.1 179.8 L202.9 178.9 L205.7 179.1 L208.8 180.6 L208.9 179.6 L212.5 178.4 L214.4 180.1 L218.6 180.8 L219.5 182.3 L218.9 184.5 L223.0 185.6 L224.2 186.5 L223.8 186.9 L225.9 186.7 L226.2 188.2 L227.7 188.4 L231.4 186.7 L232.7 187.4 L232.8 189.5 L234.3 190.6 L236.6 189.3 L239.0 190.3 L240.5 189.9 L245.6 192.4 L249.9 190.4 L250.2 192.1 L253.4 193.4 L255.0 192.2 L256.8 193.0 L260.4 191.6 L261.9 193.2 L263.0 192.3 L264.3 188.3 L263.6 185.3 L261.7 183.5 L262.7 180.8 L262.4 178.7 L264.3 174.9 L263.3 173.3 L267.1 172.5 L269.9 170.7 L272.5 172.1 L273.2 174.1 L271.6 177.8 L272.1 179.9 L273.6 180.9 L271.4 183.2 L273.0 183.7 L273.0 185.7 L273.6 185.1 L276.3 187.5 L279.4 186.9 L282.9 187.9 L282.6 188.6 L285.7 188.9 L289.8 188.0 L290.0 187.2 L291.9 186.3 L296.4 188.0 L309.1 187.5 L311.6 186.1 L313.7 187.0 L314.5 185.6 L313.4 184.0 L313.5 181.8 L314.6 181.4 L313.2 178.9 L308.5 178.9 L307.4 177.0 L308.4 175.2 L307.4 174.5 L312.0 175.9 L316.1 173.7 L317.1 174.9 L318.8 174.9 L322.3 172.5 L321.7 170.3 L324.8 169.7 L329.7 164.7 L338.8 162.1 L339.3 161.1 L343.3 159.1 L342.3 157.5 L346.6 155.7 L347.5 155.4 L348.9 157.4 L351.6 157.9 L351.3 157.3 L354.7 158.6 L356.9 157.0 L357.8 157.9 L357.8 157.0 L359.1 156.5 L360.4 156.9 L361.8 155.0 L364.8 154.6 L368.0 157.0 L366.5 158.1 L366.7 159.2 L368.8 158.1 L371.7 161.8 L372.0 163.2 L369.4 165.8 L370.5 166.8 L371.2 164.8 L373.7 165.0 L376.0 167.8 L378.5 167.7 L381.5 169.7 L380.9 171.4 L382.0 172.1 L381.6 173.8 L380.2 173.6 L375.6 177.2 L375.9 179.2 L379.2 183.2 L378.8 183.9 L375.5 182.8 L374.1 180.5 L372.0 180.4 L370.9 181.4 L365.5 182.2 L360.7 186.5 L353.3 190.0 L352.2 192.1 L353.1 193.0 L352.9 196.5 L353.7 197.0 L351.7 198.7 L351.9 201.1 L346.7 205.6 L346.0 207.9 L348.0 208.9 L348.0 210.6 L346.3 214.3 L343.6 217.3 L340.6 225.4 L337.7 224.1 L336.2 224.4 L335.5 223.4 L332.2 224.1 L330.1 222.1 L331.4 227.5 L330.3 231.7 L330.7 234.4 L329.5 236.1 L327.4 235.7 L327.2 242.3 L328.4 245.7 L327.7 246.6 L326.4 246.4 L325.9 249.0 L325.1 248.7 L324.5 249.6 L322.2 247.0 L320.7 249.2 L319.6 239.9 L317.8 237.0 L317.9 232.6 L316.5 227.1 L315.7 227.9 L314.9 226.8 L313.4 228.0 L312.3 226.9 L312.5 229.9 L310.0 232.7 L310.7 235.1 L308.0 237.0 L305.6 232.8 L305.3 235.3 L304.7 234.9 L304.2 231.6 L302.2 228.0 L305.0 222.1 L308.0 222.1 L308.6 220.6 L309.6 221.5 L309.9 220.4 L311.6 221.5 L312.0 219.1 L314.7 218.1 L316.2 212.0 L319.1 212.3 L319.2 211.3 L313.5 208.2 L308.5 209.0 L303.5 208.0 L293.0 208.8 L285.4 206.9 L284.9 200.1 L285.7 198.7 L283.3 194.8 L282.2 195.8 L282.9 197.0 L282.0 198.2 L280.0 197.2 L279.1 197.7 L276.6 196.1 L275.8 192.8 L274.1 192.0 L273.4 192.6 L275.3 194.8 L273.3 194.2 L272.6 194.9 L272.0 193.9 L270.4 194.5 L271.4 193.4 L267.4 190.9 L267.1 189.7 L266.1 191.7 L268.0 192.0 L268.5 193.3 L267.7 193.0 L266.3 195.0 L264.1 196.0 L264.2 197.5 L262.9 198.9 L263.3 200.4 L265.3 200.3 L268.7 204.1 L270.8 204.6 L272.2 203.9 L272.6 206.0 L274.7 207.3 L273.6 208.5 L267.4 208.0 L267.7 209.8 L266.2 212.3 L264.7 211.1 L263.6 211.4 L263.9 212.5 L261.9 214.9 L263.4 216.9 L271.3 220.2 L271.3 224.5 L269.2 225.2 L268.9 227.9 L271.4 230.3 L272.0 229.9 L271.1 233.0 L274.6 233.5 L272.6 236.1 L274.2 238.2 L273.7 240.7 L275.5 246.6 L274.0 246.1 L273.2 246.8 L273.6 247.8 L272.1 247.3 L271.1 248.9 L269.3 247.9 L269.6 248.9 L268.9 248.5 L267.9 250.4 L267.8 248.4 L266.8 251.6 L266.3 249.6 L265.2 252.5 L263.9 250.5 L264.5 247.0 L262.5 246.2 L264.3 247.7 L259.8 252.6 L250.5 255.1 L247.6 257.7 L246.2 260.0 L248.6 264.4 L246.9 264.7 L245.9 266.8 L249.7 265.4 L245.7 267.9 L245.5 269.5 L246.1 270.4 L246.6 269.2 L246.4 270.2 L241.1 274.8 L239.9 273.8 L239.1 274.2 L240.6 275.0 L239.3 275.8 L231.9 277.9 L225.7 281.4 L219.9 286.1 L220.8 285.9 L212.3 296.2 L206.7 298.9 L203.7 301.5 L203.4 301.0 L203.1 302.6 L200.6 305.4 L192.4 309.4 L189.8 311.7 L189.9 311.0 L188.2 313.7 L189.0 316.6 L185.5 316.9 L186.9 317.0 L187.5 318.1 L188.4 317.6 L187.6 318.9 L189.1 318.4 L181.5 321.8 L179.3 321.3 L179.5 320.6 L175.7 321.6 L177.3 321.4 L175.0 322.7 L173.5 326.6 L171.8 328.3 L170.8 327.4 L170.1 329.0 L169.4 327.2 L166.3 327.6 L165.9 326.5 L166.4 327.7 L163.6 328.8 L162.1 332.6 L160.8 334.5 L159.9 334.5 L160.9 334.3 L160.6 336.1 L159.5 335.7 L160.6 336.1 L160.1 341.0 L161.5 344.1 L162.0 343.9 L161.2 350.0 L164.1 360.1 L161.5 371.0 L157.7 376.8 L156.4 381.7 L157.7 387.4 L158.0 398.6 L156.2 399.0 L154.8 397.9 L153.8 398.5 L156.1 399.0 L153.6 398.0 L150.2 399.4 L150.1 402.0 L145.4 409.0 L147.2 411.2 L149.2 411.7 L144.9 412.0 L138.8 414.2 L136.3 416.3 L135.9 418.2 L136.9 418.5 L135.7 419.2 L134.8 423.3 L128.2 427.1 L125.2 426.5 L121.0 423.3 L115.3 416.5 L116.8 415.3 L115.2 416.1 L112.5 409.4 L111.4 402.9 L113.5 406.7 L113.3 404.4 L111.2 402.8 L104.7 384.7 L102.0 380.3 L98.1 376.8 L93.3 366.1 L91.6 359.7 L91.3 356.1 L92.4 355.9 L91.5 355.5 L92.2 355.3 L91.1 355.6 L86.2 343.3 L86.5 342.1 L84.2 341.7 L83.4 338.7 L81.6 337.5 L81.3 334.1 L80.0 333.3 L82.2 333.7 L80.0 332.6 L82.1 331.5 L82.8 332.0 L81.6 331.5 L79.8 332.3 L78.8 329.3 L79.4 329.3 L78.3 329.0 L75.8 325.1 L75.9 322.8 L75.5 323.2 L74.0 318.8 L74.5 317.8 L73.2 312.4 L74.1 312.5 L72.4 309.1 L73.1 308.9 L70.6 301.4 L71.3 301.1 L70.4 300.9 L70.0 297.8 L69.1 297.4 L69.5 296.6 L71.2 298.2 L70.6 296.4 L71.5 295.9 L70.3 296.8 L68.9 295.7 L68.5 292.0 L69.0 292.4 L68.1 291.3 L68.2 290.0 L69.2 289.6 L69.9 290.2 L69.4 291.0 L69.8 290.5 L70.4 291.5 L69.9 290.0 L70.9 289.8 L68.8 288.9 L69.4 287.7 L70.5 287.7 L69.7 286.6 L70.5 283.5 L67.1 282.9 L66.7 281.4 L68.5 280.7 L66.4 280.5 L67.3 279.8 L66.3 279.2 L66.4 276.9 L65.5 276.6 L66.2 275.0 L67.0 275.8 L66.2 273.7 L66.7 272.0 L67.5 272.0 L66.7 271.5 L69.0 267.9 L68.1 265.2 L69.3 264.9 L68.6 264.9 L68.5 263.6 L67.8 264.2 L66.4 261.3 L68.5 261.1 L66.2 260.8 L67.5 259.0 L65.0 260.6 L65.1 259.1 L66.1 259.1 L64.8 258.6 L65.9 257.4 L65.2 256.9 L66.2 255.8 L67.7 256.4 L65.4 256.2 L66.7 254.5 L65.0 254.3 L67.6 253.4 L67.0 252.6 L63.9 252.8 L65.2 249.7 L66.5 249.6 L64.2 250.6 L63.7 249.7 L64.7 246.4 L66.9 246.8 L67.6 245.9 L68.5 246.1 L63.5 244.3 L60.6 246.4 L59.9 248.9 L59.6 247.8 L58.5 247.7 L59.7 249.5 L58.1 248.3 L57.6 248.7 L59.2 249.4 L58.0 249.8 L60.0 249.7 L60.5 252.2 L58.8 251.3 L60.3 251.7 L61.1 253.8 L59.9 256.4 L58.1 257.6 L58.6 259.3 L52.4 262.2 L51.2 262.5 L52.7 261.7 L50.9 261.8 L51.5 262.2 L50.5 263.2 L49.2 263.5 L49.2 262.8 L48.3 263.4 L49.3 263.6 L46.3 264.9 L42.4 264.8 L42.2 265.8 L33.6 261.1 L21.6 249.6 L18.0 245.0 L19.7 242.9 L19.6 244.0 L21.3 243.6 L21.2 245.9 L24.7 245.4 L25.4 244.3 L26.6 245.0 L28.1 243.0 L28.8 244.4 L32.2 241.7 L33.5 242.3 L35.2 239.7 L36.5 239.9 L37.6 238.5 L38.4 236.9 L37.3 236.7 L38.7 236.8 L38.2 236.1 L40.9 233.7 L42.2 235.0 L45.8 233.4 L47.3 234.3 L53.5 234.5 L50.7 233.8 L50.3 232.6 L49.7 233.8 L47.1 233.6 L49.4 231.7 L47.5 232.1 L49.0 230.7 L47.4 230.6 L48.4 228.9 L45.0 228.1 L45.2 225.1 L47.9 223.5 L47.3 221.9 L45.9 221.9 L46.4 220.6 L44.6 220.0 L44.3 220.7 L43.6 219.7 L41.9 220.6 L38.9 220.2 L41.7 220.4 L43.6 218.7 L45.9 218.3 L44.5 217.6 L44.1 215.8 L45.7 214.6 L43.0 208.7 L40.1 205.6 L40.1 201.7 L35.1 201.5 L32.9 198.6 L33.8 190.8 L30.2 190.6 L25.4 188.3 L26.3 182.8 L32.0 177.9 L33.3 174.8 L36.4 172.1 L39.1 172.2 L41.0 175.6 L42.8 176.1 L47.0 174.4 L55.9 172.8 L56.3 170.7 L59.8 167.2 L62.2 162.5 L69.3 159.1 L73.6 152.2 L75.1 147.4 L80.3 145.8 L82.4 144.2 L81.3 142.1 L82.3 141.3 L81.9 140.8 L83.7 140.0 L88.2 134.7 L91.7 132.9 L91.6 132.2 L90.1 132.8 L89.3 132.2 L89.9 129.2 L91.2 128.5 L88.8 124.7 L90.4 122.6 L93.1 121.7 L94.0 120.4 L98.5 120.0 L100.4 118.1 L99.3 116.4 L96.6 115.0 L91.5 114.8 L90.9 113.3 L91.8 110.3 L90.9 111.5 L87.2 111.2 L81.8 108.3 L80.0 108.6 L78.1 107.0 L78.5 105.7 L77.2 103.6 L78.2 101.6 L77.2 100.4 L77.6 97.0 L76.5 95.5 L76.1 91.9 L75.0 90.7 L75.7 88.3 L78.2 88.3 L79.3 85.6 L82.5 84.4 L84.4 81.1 L79.3 79.9 L79.0 77.7 L80.3 76.3 L73.6 74.9 L71.7 73.7 L71.2 71.7 L64.5 71.9 L63.7 71.2 L64.3 67.0 L69.7 64.1 L71.2 62.2 L70.9 61.3 L72.2 60.7 L81.3 61.0 L81.3 60.1 L78.4 58.3 L80.8 58.1 L83.4 59.4 L88.2 57.0 L89.6 57.7 L89.4 56.9 L91.3 56.1 L92.2 56.9 L93.5 56.4 L94.4 58.1 L97.4 56.8 L100.7 57.8 L101.4 60.7 L104.8 60.3 L107.6 62.2 L108.3 63.8 L116.6 67.6 L118.6 69.3 L117.6 70.5 L118.7 71.9 L125.7 73.6 L127.4 75.9 L125.3 75.9 L126.0 76.7 L132.9 76.4 L133.0 76.4 Z M323.4 364.2 L323.7 359.0 L324.7 357.2 L326.1 356.7 L326.7 359.0 L325.3 359.8 L326.6 360.6 L326.2 363.1 L325.4 364.0 L324.6 363.2 L325.0 364.5 L323.9 365.1 L325.1 366.2 L325.5 370.1 L324.7 371.7 L323.5 371.4 L324.5 372.8 L321.6 379.2 L322.0 379.7 L323.0 377.7 L322.7 380.7 L322.0 380.4 L321.5 381.3 L322.7 381.2 L322.1 383.6 L319.6 378.8 L320.2 377.6 L320.8 378.6 L321.5 374.1 L322.1 374.9 L322.8 374.0 L321.7 369.4 L322.5 368.4 L323.0 368.8 L322.2 366.6 L323.4 364.2 L323.4 364.2 Z M334.4 440.8 L334.4 438.6 L336.9 438.1 L337.9 440.9 L337.2 443.4 L336.1 443.9 L334.5 440.6 L334.4 440.8 Z M318.0 395.3 L317.8 392.5 L319.6 391.0 L320.5 392.4 L320.3 395.1 L319.5 396.0 L318.0 395.4 L318.0 395.3 Z';
 
-  const showTooltip = (city: MapCity, e: React.MouseEvent) => {
-    const box = containerRef.current?.getBoundingClientRect();
-    if (!box) return;
-    setHovered({ city, x: e.clientX - box.left, y: e.clientY - box.top });
-  };
+export function IndiaMap({ cities, onSelectCity }: { cities: MapCity[]; onSelectCity: (city: MapCity) => void }) {
+  const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <div ref={containerRef} className="relative w-full">
-      <ComposableMap
-        projection="geoMercator"
-        projectionConfig={{ center: [82.5, 22.5], scale: 1050 }}
-        width={520}
-        height={520}
-        style={{ width: '100%', height: 'auto' }}
-      >
-        <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
-            geographies.map((geo) => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                className="fill-sand stroke-line outline-none transition-colors hover:fill-sand"
-                style={{ outline: 'none' }}
-              />
-            ))
-          }
-        </Geographies>
+    <div className="relative mx-auto aspect-[4/5] w-full max-w-md">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full paint-clay opacity-[0.06] blur-3xl" aria-hidden="true" />
+      <svg viewBox="0 0 400 500" className="relative h-full w-full" aria-hidden="true">
+        <defs>
+          <linearGradient id="india-fill" x1="0" y1="0" x2="0.4" y2="1">
+            <stop offset="0%" stopColor="var(--c-sand, #EEF0F3)" />
+            <stop offset="100%" stopColor="var(--c-line, #DDE1E7)" />
+          </linearGradient>
+          <filter id="india-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="10" stdDeviation="12" floodOpacity="0.16" />
+          </filter>
+        </defs>
+        <path d={INDIA_PATH} fill="url(#india-fill)" stroke="var(--c-line)" strokeWidth={1.5} strokeLinejoin="round" fillRule="evenodd" filter="url(#india-shadow)" />
+      </svg>
 
-        {cities.map((city) => (
-          <Marker
-            key={city.slug}
-            coordinates={[city.lng, city.lat]}
-            onMouseEnter={(e) => showTooltip(city, e)}
-            onMouseMove={(e) => showTooltip(city, e)}
-            onMouseLeave={() => setHovered((h) => (h?.city.slug === city.slug ? null : h))}
-            onClick={() => { if (!city.comingSoon) onSelectCity(city); }}
-            className={city.comingSoon ? 'cursor-default' : 'cursor-pointer'}
-          >
-            {/* Soft pulse ring behind the pin, like the reference screenshot — coming-soon pins are dimmer/smaller, honestly distinct from live markets */}
-            <circle r={city.comingSoon ? 9 : 14} className={city.comingSoon ? 'fill-stone/15' : 'fill-clay/15'} />
-            <circle r={city.comingSoon ? 3.5 : 5} className={city.comingSoon ? 'fill-stone stroke-ivory' : 'fill-clay stroke-ivory'} strokeWidth={2} />
-          </Marker>
-        ))}
-      </ComposableMap>
-
-      {hovered && (
-        <div
-          role="tooltip"
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+10px)] whitespace-nowrap rounded-md border border-line bg-white px-3 py-1.5 text-xs font-semibold text-graphite shadow-md"
-          style={{ left: hovered.x, top: hovered.y }}
+      {cities.map((city) => (
+        <button
+          key={city.slug}
+          type="button"
+          onMouseEnter={() => setHovered(city.slug)}
+          onFocus={() => setHovered(city.slug)}
+          onMouseLeave={() => setHovered((h) => (h === city.slug ? null : h))}
+          onBlur={() => setHovered((h) => (h === city.slug ? null : h))}
+          onClick={() => { if (!city.comingSoon) onSelectCity(city); }}
+          aria-label={`${city.name} — ${city.comingSoon ? 'Coming soon' : `${city.plotCount} ${city.plotCount === 1 ? 'listing' : 'listings'}`}`}
+          className={`group absolute -translate-x-1/2 -translate-y-1/2 focus:z-20 hover:z-20 ${city.comingSoon ? 'cursor-default' : 'cursor-pointer'}`}
+          style={{ left: `${city.leftPct}%`, top: `${city.topPct}%` }}
         >
-          {hovered.city.name}{' '}
-          <span className="font-normal text-stone">
-            · {hovered.city.comingSoon ? 'Coming soon' : `${hovered.city.plotCount} ${hovered.city.plotCount === 1 ? 'listing' : 'listings'}`}
+          <span className={`relative flex items-center justify-center ${city.comingSoon ? 'h-9 w-9' : 'h-11 w-11'}`}>
+            {!city.comingSoon && <span className="absolute inset-2 animate-ping rounded-full paint-clay opacity-35" />}
+            <span
+              className={`relative rounded-full shadow-[0_1px_4px_rgba(18,20,26,0.35)] transition-transform duration-150 group-hover:scale-110 ${
+                city.comingSoon ? 'h-2 w-2 border border-white/90 paint-stone' : 'h-3 w-3 border-2 border-white paint-clay'
+              }`}
+            />
           </span>
-        </div>
-      )}
+          <span
+            className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 scale-95 whitespace-nowrap rounded-md border border-line bg-white px-2.5 py-1.5 text-[11px] shadow-md transition-all duration-150 ${
+              hovered === city.slug ? 'scale-100 opacity-100' : 'opacity-0'
+            }`}
+          >
+            <span className="font-semibold text-graphite">{city.name}</span>
+            <span className="ml-1.5 text-clay">
+              {city.comingSoon ? 'Coming soon' : `${city.plotCount} ${city.plotCount === 1 ? 'listing' : 'listings'}`}
+            </span>
+          </span>
+        </button>
+      ))}
     </div>
   );
 }
