@@ -22,6 +22,23 @@ function inline(text: string, keyBase: string): React.ReactNode[] {
   return out;
 }
 
+/** Same slug rule used for both rendering heading ids and building the table of contents, so links always match. */
+export const slugifyHeading = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+export type Heading = { id: string; text: string; level: 2 | 3 | 4 };
+
+/** Pulls out # headings for a table of contents — AEO-friendly too, since it gives answer engines a map
+ * of the article's sections (and deep-linkable anchors) without having to parse the whole body. */
+export function extractHeadings(source: string): Heading[] {
+  const blocks = source.replace(/\r\n/g, "\n").split(/\n{2,}/);
+  const out: Heading[] = [];
+  for (const b of blocks) {
+    const h = b.trim().match(/^(#{1,3})\s+(.*)$/);
+    if (h) out.push({ id: slugifyHeading(h[2]), text: h[2], level: (h[1].length + 1) as 2 | 3 | 4 });
+  }
+  return out;
+}
+
 export function Markdown({ source }: { source: string }) {
   const blocks = source.replace(/\r\n/g, "\n").split(/\n{2,}/);
   return (
@@ -33,7 +50,7 @@ export function Markdown({ source }: { source: string }) {
         if (h) {
           const cls = h[1].length === 1 ? "text-3xl" : h[1].length === 2 ? "text-2xl" : "text-xl";
           const Tag = (`h${h[1].length + 1}`) as "h2" | "h3" | "h4";
-          return <Tag key={i} className={`font-serif-headline ${cls} font-bold pt-2`}>{inline(h[2], `h${i}`)}</Tag>;
+          return <Tag key={i} id={slugifyHeading(h[2])} className={`font-serif-headline ${cls} scroll-mt-24 font-bold pt-2`}>{inline(h[2], `h${i}`)}</Tag>;
         }
         if (/^(-|\*)\s/.test(t)) {
           return <ul key={i} className="list-disc space-y-1 pl-6">{t.split("\n").map((l, j) => <li key={j}>{inline(l.replace(/^(-|\*)\s+/, ""), `l${i}-${j}`)}</li>)}</ul>;

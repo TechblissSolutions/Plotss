@@ -7,6 +7,13 @@ export type Post = {
   id: string; slug: string; title: string; excerpt: string; body: string; cover: string | null; tags: string[];
   author: string; status: "draft" | "published"; publishedAt: string | null; updatedAt: string;
   seoTitle: string | null; seoDescription: string | null;
+  /** AEO/GEO: a short list of plain-language takeaways an answer engine (or a skimming reader) can lift directly. */
+  keyTakeaways: string[];
+  /** AEO: same {q,a} shape as seo_pages, so it reuses the existing FAQPage schema helper. */
+  faq: { q: string; a: string }[];
+  /** E-E-A-T: a visible trust signal beyond just a byline name. */
+  authorRole: string | null;
+  authorBio: string | null;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,12 +21,14 @@ const map = (r: any): Post => ({
   id: r.id, slug: r.slug, title: r.title, excerpt: r.excerpt ?? "", body: r.body ?? "", cover: r.cover_image ?? null,
   tags: r.tags ?? [], author: r.author ?? "PLOTSS Editorial", status: r.status, publishedAt: r.published_at,
   updatedAt: r.updated_at ?? r.created_at, seoTitle: r.seo_title, seoDescription: r.seo_description,
+  keyTakeaways: r.key_takeaways ?? [], faq: r.faq ?? [], authorRole: r.author_role ?? null, authorBio: r.author_bio ?? null,
 });
 
 const demo = (): Post[] =>
   BLOG_POSTS.map((b) => ({
     id: b.id, slug: b.id, title: b.title, excerpt: b.excerpt, body: b.excerpt, cover: null, tags: [b.tag], author: "PLOTSS Editorial",
     status: "published", publishedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), seoTitle: null, seoDescription: null,
+    keyTakeaways: [], faq: [], authorRole: null, authorBio: null,
   }));
 
 export async function getPublishedPosts(limit?: number): Promise<Post[]> {

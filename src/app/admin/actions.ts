@@ -120,7 +120,10 @@ export async function saveBlog(f: FormData) {
   const row = {
     slug: slugify(s(f, "slug", 100) || title), title, excerpt: s(f, "excerpt", 400), body: s(f, "body", 60000),
     cover_image: s(f, "cover_image", 500) || null, tags: s(f, "tags", 200).split(",").map((t) => t.trim()).filter(Boolean).slice(0, 8),
-    author: s(f, "author", 80) || "PLOTSS Editorial", status, seo_title: s(f, "seo_title", 120) || null,
+    author: s(f, "author", 80) || "PLOTSS Editorial", author_role: s(f, "author_role", 120) || null, author_bio: s(f, "author_bio", 300) || null,
+    key_takeaways: s(f, "key_takeaways", 3000).split("\n").map((t) => t.trim()).filter(Boolean).slice(0, 8),
+    faq: parseFaq(s(f, "faq", 12000)),
+    status, seo_title: s(f, "seo_title", 120) || null,
     seo_description: s(f, "seo_description", 320) || null, updated_at: new Date().toISOString(),
     ...(status === "published" ? { published_at: s(f, "published_at") || new Date().toISOString() } : {}),
   };

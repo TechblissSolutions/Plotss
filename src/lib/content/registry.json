@@ -176,6 +176,11 @@
    "file": "(site)/blog/[slug]/page.tsx"
   },
   {
+   "key": "blog.post.faq-title",
+   "default": "Frequently asked questions",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
    "key": "blog.post.related-title",
    "default": "Keep reading",
    "file": "(site)/blog/[slug]/page.tsx"
@@ -183,6 +188,16 @@
   {
    "key": "blog.post.share",
    "default": "Share",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
+   "key": "blog.post.takeaways-title",
+   "default": "Key takeaways",
+   "file": "(site)/blog/[slug]/page.tsx"
+  },
+  {
+   "key": "blog.post.toc-title",
+   "default": "In this article",
    "file": "(site)/blog/[slug]/page.tsx"
   },
   {
