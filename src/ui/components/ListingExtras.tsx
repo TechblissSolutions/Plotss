@@ -123,20 +123,35 @@ export function ListingHighlights({ listing: l }: { listing: Listing }) {
   );
 }
 
-/** Short "call me back" form shown at the top of the right column. Returns an error message or null. */
-export function CallbackCard({ onSubmit }: { onSubmit: (name: string, phone: string) => Promise<string | null> }) {
+export type CallbackDetails = {
+  name: string; phone: string; email: string; area: string; areaUnit: 'sq ft' | 'acres';
+  timeline: '' | 'Immediate' | '1-3 months' | '3-6 months' | 'Just exploring'; requirements: string;
+};
+
+/** "Get a callback" form, top of the right column. Starts short (name + mobile); "Add more details"
+ * reveals email, area/unit, move-in timeline and free-text requirements. Returns an error message or null. */
+export function CallbackCard({ onSubmit }: { onSubmit: (d: CallbackDetails) => Promise<string | null> }) {
   const [name, setName] = React.useState('');
   const [phone, setPhone] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [area, setArea] = React.useState('');
+  const [areaUnit, setAreaUnit] = React.useState<CallbackDetails['areaUnit']>('sq ft');
+  const [timeline, setTimeline] = React.useState<CallbackDetails['timeline']>('');
+  const [requirements, setRequirements] = React.useState('');
+  const [expanded, setExpanded] = React.useState(false);
   const [state, setState] = React.useState<'idle' | 'sending' | 'done'>('idle');
   const [error, setError] = React.useState('');
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!/^[6-9]\d{9}$/.test(phone.replace(/\D/g, '').slice(-10))) { setError('Enter a valid 10-digit mobile number.'); return; }
     setState('sending');
-    const err = await onSubmit(name.trim(), phone.replace(/\D/g, '').slice(-10));
+    const err = await onSubmit({ name: name.trim(), phone: phone.replace(/\D/g, '').slice(-10), email: email.trim(), area: area.trim(), areaUnit, timeline, requirements: requirements.trim() });
     if (err) { setError(err); setState('idle'); } else setState('done');
   };
+
+  const field = 'w-full rounded-sm border border-line bg-ivory p-2.5 text-sm focus:border-graphite focus:outline-none';
   return (
     <div id="callback-card" className="rounded-md border border-line bg-white p-5 shadow-xs">
       <h3 className="font-serif-headline text-lg font-bold text-graphite"><T k="listing.callback.title">Get a callback</T></h3>
@@ -145,16 +160,41 @@ export function CallbackCard({ onSubmit }: { onSubmit: (name: string, phone: str
         <p className="mt-4 rounded-sm bg-sand p-3 text-sm font-semibold text-moss"><T k="listing.callback.thanks">Thank you. We will call you soon.</T></p>
       ) : (
         <form onSubmit={submit} className="mt-3 space-y-2.5">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" required className="w-full rounded-sm border border-line bg-ivory p-2.5 text-sm focus:border-graphite focus:outline-none" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" required className={field} />
           <div className="flex overflow-hidden rounded-sm border border-line bg-ivory focus-within:border-graphite">
             <span className="border-r border-line px-3 py-2.5 text-sm text-stone">+91</span>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit mobile" inputMode="tel" autoComplete="tel-national" required className="w-full bg-transparent p-2.5 text-sm focus:outline-none" />
           </div>
-          {error && <p role="alert" className="text-xs text-clay">{error}</p>}
-          <button disabled={state === 'sending'} className="paint-graphite w-full rounded-sm py-2.5 text-xs font-bold uppercase tracking-wider text-ivory disabled:opacity-60">
-            {state === 'sending' ? 'Sending…' : <T k="listing.callback.btn">Send request</T>}
+
+          {expanded && (
+            <>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional)" autoComplete="email" className={field} />
+              <div className="flex gap-2">
+                <input value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area required" inputMode="numeric" className={`${field} flex-1`} />
+                <select value={areaUnit} onChange={(e) => setAreaUnit(e.target.value as CallbackDetails['areaUnit'])} aria-label="Area unit" className={`${field} w-28 shrink-0`}>
+                  <option value="sq ft">sq ft</option>
+                  <option value="acres">acres</option>
+                </select>
+              </div>
+              <select value={timeline} onChange={(e) => setTimeline(e.target.value as CallbackDetails['timeline'])} aria-label="Move-in timeline" className={field}>
+                <option value="">Move-in timeline</option>
+                <option value="Immediate">Immediate</option>
+                <option value="1-3 months">1-3 months</option>
+                <option value="3-6 months">3-6 months</option>
+                <option value="Just exploring">Just exploring</option>
+              </select>
+              <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} placeholder="Any specific requirements?" rows={2} className={field} />
+            </>
+          )}
+          <button type="button" onClick={() => setExpanded((v) => !v)} className="text-xs font-semibold text-clay underline">
+            {expanded ? <T k="listing.callback.fewer">Fewer details</T> : <T k="listing.callback.more">Add more details</T>}
           </button>
-          <p className="text-center text-[11px] text-stone"><T k="listing.callback.privacy">We respect your privacy. No spam.</T></p>
+
+          {error && <p role="alert" className="text-xs text-clay">{error}</p>}
+          <button disabled={state === 'sending'} className="paint-clay w-full rounded-sm py-2.5 text-xs font-bold uppercase tracking-wider text-ivory disabled:opacity-60">
+            {state === 'sending' ? 'Sending…' : <T k="listing.callback.btn">Send Enquiry</T>}
+          </button>
+          <p className="text-center text-[11px] text-stone flex items-center justify-center gap-1"><Lock className="h-3 w-3" /><T k="listing.callback.privacy">We respect your privacy. No spam.</T></p>
         </form>
       )}
     </div>

@@ -118,11 +118,18 @@ Phone: ${enquiryPhone}` : ''}`;
   const similarListings = [...others.filter((p) => p.city === listing.city), ...others.filter((p) => p.city !== listing.city)].slice(0, 3);
   const [descOpen, setDescOpen] = useState(false);
   const citySlug = listing.city.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const sendCallback = async (name: string, phone: string) => {
+  const sendCallback = async (d: CallbackDetails) => {
     if (!onSubmitEnquiry) return 'Callback is not available right now.';
-    return onSubmitEnquiry(listing, `Callback request
-Name: ${name}
-Phone: ${phone}`, new Date().toISOString().slice(0, 10));
+    const lines = [
+      'Callback request',
+      `Name: ${d.name}`,
+      `Phone: ${d.phone}`,
+      d.email && `Email: ${d.email}`,
+      d.area && `Area required: ${d.area} ${d.areaUnit}`,
+      d.timeline && `Move-in timeline: ${d.timeline}`,
+      d.requirements && `Requirements: ${d.requirements}`,
+    ].filter(Boolean);
+    return onSubmitEnquiry(listing, lines.join('\n'), new Date().toISOString().slice(0, 10));
   };
 
   return (
