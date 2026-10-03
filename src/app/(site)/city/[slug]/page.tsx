@@ -35,6 +35,9 @@ export default async function CityPage({ params }: Props) {
         intro={row?.intro || `${listings.length} listing${listings.length === 1 ? "" : "s"} across industrial, commercial and residential land in ${city.name}, ${city.state}.`}
         listings={listings}
         faq={faq}
+        eyebrow={`Land · ${city.name}`}
+        crumbs={[{ href: "/city", label: "Cities" }, { href: `/city/${slug}`, label: city.name }]}
+        orgPhone={g.orgPhone}
         related={[
           ...CATEGORY_LIST.map((c) => ({ href: `/category/${c.slug}`, label: `${c.name} land` })),
           ...cityRows.filter((c) => c.slug !== slug).slice(0, 4).map((c) => ({ href: `/city/${c.slug}`, label: c.name })),

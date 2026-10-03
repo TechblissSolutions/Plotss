@@ -33,6 +33,9 @@ export default async function CategoryPage({ params }: Props) {
         intro={row?.intro || cat.blurb + "."}
         listings={listingsInCategory(all, cat.name)}
         faq={faq}
+        eyebrow={`${cat.name} Land`}
+        crumbs={[{ href: `/category/${slug}`, label: `${cat.name} land` }]}
+        orgPhone={g.orgPhone}
         related={cityRows.map((c) => ({ href: `/city/${c.slug}`, label: `Land in ${c.name}` }))}
       />
     </>
