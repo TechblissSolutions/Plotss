@@ -571,6 +571,11 @@
    "file": "screens/HomeScreen.tsx"
   },
   {
+   "key": "home.browse-all-cities",
+   "default": "Browse all cities",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
    "key": "home.cat-commercial",
    "default": "Commercial and mixed-use land listings for offices, retail and campuses.",
    "file": "screens/HomeScreen.tsx"
@@ -628,6 +633,11 @@
   {
    "key": "home.explore-by-land-classification",
    "default": "Explore by Land Classification",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.featured-across-ncr",
+   "default": "Featured Across NCR",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -858,6 +868,16 @@
   {
    "key": "home.ticker-note",
    "default": "New listings are screened before they go live",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.top-destinations-subtitle",
+   "default": "Hover a pin to see live listing counts, or jump straight to a city below.",
+   "file": "screens/HomeScreen.tsx"
+  },
+  {
+   "key": "home.top-destinations-title",
+   "default": "Our Launch Markets",
    "file": "screens/HomeScreen.tsx"
   },
   {

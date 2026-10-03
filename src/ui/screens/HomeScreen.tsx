@@ -1,10 +1,19 @@
 'use client';
 import { T, Show } from '../content';
+import Link from 'next/link';
 import React, { useState } from 'react';
 import { Listing, CityInfo, ScreenId } from '../types';
 import { useData } from '../data/DataProvider';
 import { AbstractPlotVisual } from '../components/AbstractPlotVisual';
+import { IndiaMap, type MapCity } from '../components/IndiaMap';
 import { mapsHref } from '@/lib/geo';
+
+/** Approximate city-centre coordinates for the launch cities' map pins. */
+const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
+  Ghaziabad: { lat: 28.6692, lng: 77.4538 },
+  Noida: { lat: 28.5355, lng: 77.391 },
+  'New Delhi': { lat: 28.6139, lng: 77.209 },
+};
 import {
   Sparkles,
   Search,
@@ -69,6 +78,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     e.preventDefault();
     onSearchQuerySubmit(naturalQuery || '3 acre industrial land near Ghaziabad under 5Cr', activeTab);
   };
+
+  const mapCities: MapCity[] = cities.reduce<MapCity[]>((acc, c) => {
+    const coord = CITY_COORDS[c.name];
+    if (coord) acc.push({ slug: c.name.toLowerCase().replace(/\s+/g, '-'), name: c.name, state: c.state, lat: coord.lat, lng: coord.lng, plotCount: c.plotCount });
+    return acc;
+  }, []);
 
   const sampleSearchPrompts = [
     '3 acre industrial land near Ghaziabad under 5Cr',
@@ -524,8 +539,46 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       </section>
 
-      {/* 5. EXPLORE BY CITY (Grid / Map-based City Cards showing plot counts) */}
+      {/* 5a. INTERACTIVE MAP — hover a pin for its listing count, click to jump into that city's search */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div className="order-2 lg:order-1">
+            <IndiaMap cities={mapCities} onSelectCity={(c) => onSearchQuerySubmit(c.name, 'Buy')} />
+          </div>
+          <div className="order-1 lg:order-2">
+            <span className="text-xs font-bold text-trust uppercase tracking-wider font-tabular">
+              <T k="home.featured-across-ncr">Featured Across NCR</T>
+            </span>
+            <h2 className="font-serif-headline text-3xl font-bold text-graphite mt-1">
+              <T k="home.top-destinations-title">Our Launch Markets</T>
+            </h2>
+            <p className="mt-2 text-sm text-stone max-w-md">
+              <T k="home.top-destinations-subtitle">Hover a pin to see live listing counts, or jump straight to a city below.</T>
+            </p>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {cities.map((city) => (
+                <button
+                  key={city.name}
+                  onClick={() => onSearchQuerySubmit(city.name, 'Buy')}
+                  className="flex items-center justify-between rounded-md border border-line bg-white p-4 text-left hover:border-graphite transition-colors cursor-pointer group"
+                >
+                  <div>
+                    <div className="font-serif-headline font-bold text-graphite group-hover:text-clay transition-colors">{city.name}</div>
+                    <div className="text-xs text-stone mt-0.5">{city.plotCount} {city.plotCount === 1 ? 'listing' : 'listings'}</div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-clay shrink-0" />
+                </button>
+              ))}
+            </div>
+            <Link href="/city" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-clay hover:underline">
+              <T k="home.browse-all-cities">Browse all cities</T> <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5b. EXPLORE BY CITY (detailed cards: avg price, popular hubs) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="mb-8">
           <span className="text-xs font-bold text-trust uppercase tracking-wider font-tabular">
             <T k="home.geographic-coverage">Geographic Coverage</T>
