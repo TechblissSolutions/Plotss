@@ -1,3 +1,4 @@
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Applies the admin-managed redirect table. Runs before routing; the table is cached in memory for 60s.
@@ -22,10 +23,29 @@ async function loadRedirects(): Promise<Map<string, Redirect>> {
 }
 
 export async function proxy(req: NextRequest) {
+  // Check admin-managed redirect table first
   const hit = (await loadRedirects()).get(req.nextUrl.pathname);
-  if (!hit) return NextResponse.next();
-  const target = hit.to_path.startsWith("http") ? new URL(hit.to_path) : new URL(hit.to_path, req.url);
-  return NextResponse.redirect(target, hit.status_code === 302 ? 302 : 301);
+  if (hit) {
+    const target = hit.to_path.startsWith("http") ? new URL(hit.to_path) : new URL(hit.to_path, req.url);
+    return NextResponse.redirect(target, hit.status_code === 302 ? 302 : 301);
+  }
+
+  // Refresh Supabase session cookie so SSR pages always see a valid session
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (supabaseUrl && supabaseAnon) {
+    const response = NextResponse.next();
+    const supabase = createServerClient(supabaseUrl, supabaseAnon, {
+      cookies: {
+        getAll: () => req.cookies.getAll(),
+        setAll: (list) => list.forEach(({ name, value, options }) => response.cookies.set(name, value, options)),
+      },
+    });
+    await supabase.auth.getUser();
+    return response;
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

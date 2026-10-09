@@ -102,7 +102,8 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
       if (mode === 'register') sessionStorage.setItem('plotss-intended-role', intended);
     } catch { /* ignore */ }
     const { error } = await supabaseBrowser().auth.signInWithOAuth({
-      provider: "google", options: { redirectTo: inline ? `${location.origin}/` : `${location.origin}${location.pathname}` },
+      provider: "google",
+      options: { redirectTo: `${location.origin}/auth/callback?next=/onboarding` },
     });
     if (error) throw error;
   });
@@ -129,7 +130,7 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
     if (password.length < 6) throw new Error("Password must be at least 6 characters");
     if (password !== confirmPassword) throw new Error("Passwords do not match");
     const sb = supabaseBrowser();
-    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: fullName.trim(), phone: `+91${digits}` } } });
+    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: fullName.trim(), phone: `+91${digits}` }, emailRedirectTo: `${location.origin}/auth/callback?next=/onboarding` } });
     if (error) throw error;
     if (!data.session) {
       // Email confirmation is switched on for this Supabase project: no session yet.

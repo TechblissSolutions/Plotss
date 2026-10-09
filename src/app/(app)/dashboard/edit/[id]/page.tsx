@@ -15,7 +15,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const svc = createServiceClient();
   const { data: p } = await svc
     .from("properties").select("id,owner_id,broker_id,status,title,description,price,area_value,micro_market,lat,lng,details,city:cities(slug,name)").eq("id", id).maybeSingle();
-  const allowed = p && (p.owner_id === s.id || (s.brokerId && p.broker_id === s.brokerId) || s.role === "admin");
+  const allowed = p && (p.owner_id === s.id || (s.brokerId && p.broker_id === s.brokerId) || s.isAdmin);
   if (!p || !allowed || p.status === "sold") notFound();
   const { data: c } = await svc.from("listing_contacts").select("phone").eq("property_id", id).maybeSingle();
   const city = (Array.isArray(p.city) ? p.city[0] : p.city) as { slug: string; name: string } | null;

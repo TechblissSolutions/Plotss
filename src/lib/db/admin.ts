@@ -30,7 +30,8 @@ export async function adminListings(status?: string): Promise<AdminListing[]> {
   let q = createServiceClient()
     .from("properties")
     .select("*, city:cities(name), category:categories(name), owner:profiles(full_name,phone), listing_contacts(name,phone), verification_documents(id,doc_type,status,doc_ref,file_url)")
-    .order("created_at", { ascending: status === "pending" });
+    .order("created_at", { ascending: status === "pending" })
+    .limit(100); // safety cap — full pagination is P2-8
   if (status && status !== "all") q = q.eq("status", status);
   const { data } = await q;
   return (data ?? []).map(mapListing);
@@ -148,6 +149,19 @@ export async function adminClients(): Promise<AdminClient[]> {
   }));
 }
 
+export type UserCapabilities = { user_id: string; can_buy: boolean; can_sell: boolean; is_broker_staff: boolean; broker_id: string | null };
+export async function adminUserCapabilities(): Promise<Map<string, UserCapabilities>> {
+  if (!(await isDbReady())) return new Map();
+  const { data } = await createServiceClient()
+    .from("account_capabilities")
+    .select("user_id,can_buy,can_sell,is_broker_staff,broker_id");
+  const map = new Map<string, UserCapabilities>();
+  for (const row of data ?? []) {
+    map.set(row.user_id, { user_id: row.user_id, can_buy: row.can_buy ?? true, can_sell: row.can_sell ?? false, is_broker_staff: row.is_broker_staff ?? false, broker_id: row.broker_id ?? null });
+  }
+  return map;
+}
+
 export async function createClient(name: string, firmName: string) {
   const { error } = await createServiceClient().from("broker_profiles").insert({ name, firm_name: firmName || null });
   if (error) throw new Error(error.message);
@@ -189,4 +203,31 @@ export async function analytics() {
 export async function signedDocUrl(path: string): Promise<string | null> {
   const { data } = await createServiceClient().storage.from("listing-docs").createSignedUrl(path, 600);
   return data?.signedUrl ?? null;
+}
+
+/**
+ * Write an entry to admin_audit_log (table created in migration 0012).
+ * Silently swallows errors — audit logging must never block the main action.
+ * Only callable server-side via service role; no client policy allows writes.
+ */
+export async function logAdminAction(
+  adminId: string,
+  action: string,
+  targetType: string,
+  targetId?: string,
+  details?: Record<string, unknown>,
+): Promise<void> {
+  try {
+    await createServiceClient()
+      .from("admin_audit_log")
+      .insert({
+        admin_id: adminId,
+        action,
+        target_type: targetType,
+        target_id: targetId ?? null,
+        details: details ?? null,
+      });
+  } catch {
+    // Intentionally silent — audit log should never block the main action
+  }
 }

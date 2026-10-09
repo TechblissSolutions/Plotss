@@ -24,7 +24,7 @@ export async function updateListingAction(p: EditPayload): Promise<{ error: stri
 
   const svc = createServiceClient();
   const { data: cur } = await svc.from("properties").select("id,owner_id,broker_id,status,details,area_unit,city:cities(name)").eq("id", p.id).maybeSingle();
-  const allowed = cur && (cur.owner_id === s.id || (s.brokerId && cur.broker_id === s.brokerId) || s.role === "admin");
+  const allowed = cur && (cur.owner_id === s.id || (s.brokerId && cur.broker_id === s.brokerId) || s.isAdmin);
   if (!cur || !allowed) return { error: "You can only edit your own listings." };
   if (cur.status === "sold") return { error: "A sold listing cannot be edited." };
 

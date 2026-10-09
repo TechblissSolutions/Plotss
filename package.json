@@ -15,19 +15,15 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@react-three/fiber": "^9.7.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
-    "d3-geo": "^3.1.1",
     "framer-motion": "^13.4.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.47.0",
     "next": "^16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-simple-maps": "^5.0.5",
-    "server-only": "^0.0.1",
-    "three": "^0.186.0"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

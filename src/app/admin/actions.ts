@@ -3,7 +3,8 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { createClient, setBrokerVerified, setClientStatus, setDocumentStatus, setListingStatus, setUserRole } from "@/lib/db/admin";
+import { createClient, logAdminAction, setBrokerVerified, setClientStatus, setDocumentStatus, setListingStatus, setUserRole } from "@/lib/db/admin";
+import { getSession } from "@/lib/session";
 import { writeContent } from "@/lib/content/store";
 import { screenAndStore } from "@/lib/ai/screen";
 import { writeFeatures } from "@/lib/features";
@@ -19,7 +20,13 @@ export async function decideListing(f: FormData) {
   await requireAdmin();
   const status = s(f, "status");
   if (!["live", "rejected", "draft", "pending", "sold"].includes(status)) return;
-  await setListingStatus(s(f, "id", 64), status as "live", s(f, "note", 500));
+  const listingId = s(f, "id", 64);
+  await setListingStatus(listingId, status as "live", s(f, "note", 500));
+  const session = await getSession();
+  if (session) {
+    const actionName = status === "live" ? "approve_listing" : status === "rejected" ? "reject_listing" : `set_listing_${status}`;
+    await logAdminAction(session.id, actionName, "listing", listingId, { status, note: s(f, "note", 500) || undefined });
+  }
   bust(); revalidatePath("/admin/listings");
 }
 export async function decideDocument(f: FormData) {
@@ -42,6 +49,31 @@ export async function changeRole(f: FormData) {
 export async function verifyBroker(f: FormData) {
   await requireAdmin();
   await setBrokerVerified(s(f, "id", 64), s(f, "verified") === "true");
+  bust(); revalidatePath("/admin/users");
+}
+
+/* ---------- capabilities ---------- */
+export async function adminGrantCapabilityAction(f: FormData): Promise<void> {
+  await requireAdmin();
+  const userId = s(f, "userId", 64);
+  const capability = s(f, "capability", 32) as "can_sell" | "is_broker_staff";
+  const brokerId = s(f, "brokerId", 64) || undefined;
+  if (!["can_sell", "is_broker_staff"].includes(capability)) return;
+  const { addCapabilityAction } = await import("@/app/(app)/actions");
+  await addCapabilityAction(userId, capability, brokerId);
+  const session = await getSession();
+  if (session) await logAdminAction(session.id, "grant_capability", "capability", undefined, { userId, capability, brokerId });
+  bust(); revalidatePath("/admin/users");
+}
+export async function adminRevokeCapabilityAction(f: FormData): Promise<void> {
+  await requireAdmin();
+  const userId = s(f, "userId", 64);
+  const capability = s(f, "capability", 32) as "can_sell" | "is_broker_staff";
+  if (!["can_sell", "is_broker_staff"].includes(capability)) return;
+  const { removeCapabilityAction } = await import("@/app/(app)/actions");
+  await removeCapabilityAction(userId, capability);
+  const session = await getSession();
+  if (session) await logAdminAction(session.id, "revoke_capability", "capability", undefined, { userId, capability });
   bust(); revalidatePath("/admin/users");
 }
 

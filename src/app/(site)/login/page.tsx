@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const s = await getSession();
-  if (s) redirect(s.role === "admin" ? "/admin" : dashboardPath(s.role));
+  if (s) redirect(s.isAdmin ? "/admin" : dashboardPath(s.role));
   return (
     <main className="px-4 py-10 sm:py-16">
       <AuthModal inline="login" />

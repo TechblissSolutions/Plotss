@@ -1,3 +1,5 @@
+export const revalidate = 3600; // ISR: revalidate every hour
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getListingBySlug } from "@/lib/db/listings";

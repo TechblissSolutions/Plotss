@@ -96,8 +96,23 @@ export function AppShell({ session, children }: { session: Session | null; child
     const on = !savedIds.includes(id);
     const next = on ? [...savedIds, id] : savedIds.filter((x) => x !== id);
     setSavedIds(next);
-    try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch { /* ignore */ }
-    if (signedIn) void setSaved(id, on);
+    // For signed-in users, DB is source of truth; localStorage is a secondary cache only.
+    if (signedIn) {
+      setSaved(id, on).then((result) => {
+        if (!result?.ok) {
+          // Revert optimistic update on failure
+          setSavedIds((prev) => on ? prev.filter((x) => x !== id) : [...prev, id]);
+        } else {
+          // Secondary: keep localStorage in sync as offline cache
+          try { localStorage.setItem(SAVED_KEY, JSON.stringify(on ? [...savedIds, id] : savedIds.filter((x) => x !== id))); } catch { /* ignore */ }
+        }
+      }).catch(() => {
+        setSavedIds((prev) => on ? prev.filter((x) => x !== id) : [...prev, id]);
+      });
+    } else {
+      // Not signed in: localStorage is the primary store
+      try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+    }
   }, [savedIds, signedIn]);
 
   const toggleCompare = useCallback((l: Listing) => {

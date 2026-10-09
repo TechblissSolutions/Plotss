@@ -39,7 +39,22 @@ export type City = { slug: string; name: string; state: string };
 export type Category = { slug: CategorySlug; name: string; blurb: string };
 
 /** brokerId identifies the client/business this login manages listings for (multi-staff agency accounts). */
-export type Session = { id: string; name: string; role: Role; phone?: string; brokerId?: string };
+export type Session = {
+  id: string;
+  name: string;
+  /** @deprecated Use capability booleans; kept for backward compatibility during transition. */
+  role: Role;
+  phone?: string;
+  /** Source of truth is account_capabilities.broker_id during transition. */
+  brokerId?: string;
+  // Capability flags — derived from account_capabilities table
+  canBuy: boolean;
+  canSell: boolean;
+  isBrokerStaff: boolean;
+  isAdmin: boolean;
+  /** True once the user has completed (or skipped) the onboarding flow. */
+  isOnboarded: boolean;
+};
 
 /** Structured filters parsed from a natural-language query or URL params. */
 export type Filters = {

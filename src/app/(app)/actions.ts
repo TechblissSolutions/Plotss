@@ -27,7 +27,7 @@ export async function setLeadStatus(enquiryId: string, status: string) {
   const { data } = await svc.from("enquiries").select("property_id, property:properties(owner_id,broker_id)").eq("id", enquiryId).maybeSingle();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const prop = (data as any)?.property;
-  const allowed = prop && (prop.owner_id === s.id || (s.brokerId && prop.broker_id === s.brokerId) || s.role === "admin");
+  const allowed = prop && (prop.owner_id === s.id || (s.brokerId && prop.broker_id === s.brokerId) || s.isAdmin);
   if (!allowed) return { ok: false as const };
   await svc.from("enquiries").update({ status }).eq("id", enquiryId);
   revalidatePath("/dashboard/seller");
@@ -38,7 +38,7 @@ export async function setLeadStatus(enquiryId: string, status: string) {
 /** Brokers submit / update their profile; it stays unverified until an admin checks the RERA / agency proof. */
 export async function saveBrokerProfile(f: FormData) {
   const s = await getSession();
-  if (!s || (s.role !== "broker" && s.role !== "admin")) return;
+  if (!s || (!s.isBrokerStaff && !s.isAdmin)) return;
   if (!(await isDbReady())) return;
   const t = (k: string, max = 200) => String(f.get(k) ?? "").trim().slice(0, max);
   const name = t("name", 100);
@@ -69,7 +69,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export async function inviteStaffAction(f: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
   const s = await getSession();
-  if (!s || s.role !== "broker" || !s.brokerId) return { ok: false, error: "Only a business's own staff can invite a teammate." };
+  if (!s || (!s.isBrokerStaff && !s.isAdmin) || !s.brokerId) return { ok: false, error: "Only a business's own staff can invite a teammate." };
   if (!(await isDbReady())) return { ok: false, error: "Not available in demo mode." };
   const email = String(f.get("email") ?? "").trim().toLowerCase();
   if (!EMAIL_RE.test(email)) return { ok: false, error: "Enter a valid email address." };
@@ -86,7 +86,24 @@ export async function inviteStaffAction(f: FormData): Promise<{ ok: true } | { o
   }
   if (!userId) return { ok: false, error: inviteErr?.message ?? "Could not find or create that account." };
 
-  await svc.from("profiles").update({ role: "broker", broker_id: s.brokerId }).eq("id", userId);
+  // Write to account_capabilities (source of truth going forward).
+  await svc
+    .from("account_capabilities")
+    .upsert(
+      {
+        user_id: userId,
+        is_broker_staff: true,
+        broker_id: s.brokerId,
+        is_broker_staff_activated_at: new Date().toISOString(),
+        can_buy: true,
+      },
+      { onConflict: "user_id" }
+    );
+
+  // Keep profiles.broker_id in sync for backward compatibility during transition.
+  await svc.from("profiles").update({ broker_id: s.brokerId }).eq("id", userId);
+  // Do NOT write profiles.role = 'broker' any more — capabilities is the source of truth.
+
   await notify({
     userId, title: "You've been added to a team on PLOTSS",
     body: "You can now manage listings and leads for this business.", link: "/dashboard/broker",
@@ -101,11 +118,97 @@ export async function markListingSold(propertyId: string) {
   if (!s || !/^[0-9a-f-]{36}$/i.test(propertyId) || !(await isDbReady())) return { ok: false as const };
   const svc = createServiceClient();
   const { data } = await svc.from("properties").select("owner_id,broker_id,status").eq("id", propertyId).maybeSingle();
-  const allowed = data && (data.owner_id === s.id || (s.brokerId && data.broker_id === s.brokerId) || s.role === "admin");
+  const allowed = data && (data.owner_id === s.id || (s.brokerId && data.broker_id === s.brokerId) || s.isAdmin);
   if (!allowed || data.status !== "live") return { ok: false as const };
   await svc.from("properties").update({ status: "sold" }).eq("id", propertyId);
   updateTag("site-data");
   revalidatePath("/dashboard/seller");
   revalidatePath("/dashboard/broker");
   return { ok: true as const };
+}
+
+// ============================================================
+// Admin capability management actions
+// ============================================================
+
+type ManageableCapability = "can_sell" | "is_broker_staff";
+
+/** Admin-only: grant a capability to a user. */
+export async function addCapabilityAction(
+  userId: string,
+  capability: ManageableCapability,
+  brokerId?: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const s = await getSession();
+  if (!s || !s.isAdmin) return { ok: false, error: "Admin only." };
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) return { ok: false, error: "Invalid user ID." };
+  if (!(await isDbReady())) return { ok: false, error: "Not available in demo mode." };
+
+  const svc = createServiceClient();
+  const update: Record<string, unknown> = {};
+  if (capability === "can_sell") {
+    update.can_sell = true;
+    update.can_sell_activated_at = new Date().toISOString();
+  } else if (capability === "is_broker_staff") {
+    if (!brokerId || !/^[0-9a-f-]{36}$/i.test(brokerId)) return { ok: false, error: "broker_id is required when granting is_broker_staff." };
+    update.is_broker_staff = true;
+    update.broker_id = brokerId;
+    update.is_broker_staff_activated_at = new Date().toISOString();
+    update.can_buy = true; // broker_staff_must_can_buy constraint
+    // Keep profiles.broker_id in sync
+    await svc.from("profiles").update({ broker_id: brokerId }).eq("id", userId);
+  }
+
+  const { error } = await svc
+    .from("account_capabilities")
+    .upsert({ user_id: userId, ...update }, { onConflict: "user_id" });
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/admin/listings");
+  return { ok: true };
+}
+
+/** Admin-only: remove a capability from a user. Cannot remove can_sell if they have active listings. */
+export async function removeCapabilityAction(
+  userId: string,
+  capability: ManageableCapability
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const s = await getSession();
+  if (!s || !s.isAdmin) return { ok: false, error: "Admin only." };
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) return { ok: false, error: "Invalid user ID." };
+  if (!(await isDbReady())) return { ok: false, error: "Not available in demo mode." };
+
+  const svc = createServiceClient();
+
+  if (capability === "can_sell") {
+    // Check for active listings before removing
+    const { count } = await svc
+      .from("properties")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", userId)
+      .in("status", ["draft", "pending", "live"]);
+    if ((count ?? 0) > 0) {
+      return { ok: false, error: `User has ${count} active listing(s). Resolve them before removing the sell capability.` };
+    }
+  }
+
+  const update: Record<string, unknown> = {};
+  if (capability === "can_sell") {
+    update.can_sell = false;
+    update.can_sell_activated_at = null;
+  } else if (capability === "is_broker_staff") {
+    update.is_broker_staff = false;
+    update.broker_id = null;
+    update.is_broker_staff_activated_at = null;
+    // Clear profiles.broker_id too
+    await svc.from("profiles").update({ broker_id: null }).eq("id", userId);
+  }
+
+  const { error } = await svc
+    .from("account_capabilities")
+    .upsert({ user_id: userId, ...update }, { onConflict: "user_id" });
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/admin/listings");
+  return { ok: true };
 }

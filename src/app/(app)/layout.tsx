@@ -10,6 +10,7 @@ import { ContentProvider } from "@/ui/content";
 export const metadata: Metadata = { title: "My dashboard", robots: { index: false, follow: false } };
 
 // Buyer / seller / broker dashboards live in the same tab as the marketplace, with their own simple top bar.
+// TODO (post-launch): A unified /workspace route consolidating all dashboards is deferred to post-launch.
 // (Only the super admin panel opens in a separate tab.)
 export default async function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   const [session, content] = await Promise.all([getSession(), getContent()]);
@@ -24,14 +25,16 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
             <Link href="/post-listing" className="hidden text-sm text-stone hover:text-graphite sm:inline">Post a listing</Link>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            {session?.role === "admin" && <Link href="/admin" className="text-clay">← Admin panel</Link>}
+            {session?.isAdmin && <Link href="/admin" className="text-clay">← Admin panel</Link>}
             {session && <NotificationBell items={notifications} />}
             {session && (
               <span className="hidden items-center gap-2 sm:flex">
                 <span className="grid h-8 w-8 place-items-center rounded-full paint-graphite text-xs font-bold text-ivory">{(session.name || "U")[0].toUpperCase()}</span>
                 <span className="leading-tight">
                   <span className="block text-xs font-semibold text-graphite">{session.name}</span>
-                  <span className="block text-[11px] uppercase tracking-wider text-stone">{session.role}</span>
+                  <span className="block text-[11px] uppercase tracking-wider text-stone">
+                    {session.isAdmin ? "Admin" : session.isBrokerStaff ? "Broker Staff" : (session.canSell && session.canBuy) ? "Buyer & Seller" : session.canSell ? "Seller" : "Buyer"}
+                  </span>
                 </span>
               </span>
             )}
