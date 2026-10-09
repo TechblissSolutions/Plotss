@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getSeoGlobal } from "@/lib/seo";
+import { getSeoGlobal, jsonLd, orgLd, websiteLd } from "@/lib/seo";
 import { buildThemeCss, fontsHref } from "@/lib/theme/css";
 import { getTheme } from "@/lib/theme/store";
 import "./globals.css";
@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const theme = await getTheme();
+  const [theme, g] = await Promise.all([getTheme(), getSeoGlobal()]);
 
   return (
     <html lang="en" className="antialiased">
@@ -25,6 +25,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href={fontsHref(theme)} />
         <style id="site-theme" dangerouslySetInnerHTML={{ __html: buildThemeCss(theme) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(orgLd(g)) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(websiteLd(g)) }}
+        />
       </head>
       <body className="min-h-screen flex flex-col">{children}</body>
     </html>
