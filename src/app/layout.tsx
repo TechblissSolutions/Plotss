@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { getSeoGlobal, jsonLd, orgLd, websiteLd } from "@/lib/seo";
 import { buildThemeCss, fontsHref } from "@/lib/theme/css";
 import { getTheme } from "@/lib/theme/store";
@@ -15,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
   const [theme, g] = await Promise.all([getTheme(), getSeoGlobal()]);
 
   return (
