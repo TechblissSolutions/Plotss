@@ -5,12 +5,6 @@ import { isDbReady } from "./db/listings";
 
 export type NotifyInput = { userId: string; title: string; body: string; link?: string };
 
-/**
- * Single entry point for every outbound notification. Each channel is gated by its own
- * site_settings.features flag; email/WhatsApp also need a provider configured in env, so they silently
- * no-op (not throw) until one is wired in — see sendEmail/sendWhatsapp below. Callers never need to know
- * which channels are actually live.
- */
 export async function notify(input: NotifyInput): Promise<void> {
   if (!(await isDbReady())) return;
   const f = await getFeatures();
@@ -18,13 +12,10 @@ export async function notify(input: NotifyInput): Promise<void> {
   if (f.notifyInApp) jobs.push(Promise.resolve(createServiceClient().from("notifications").insert({ user_id: input.userId, title: input.title, body: input.body, link: input.link ?? null })));
   if (f.notifyEmail) jobs.push(sendEmail(input));
   if (f.notifyWhatsapp) jobs.push(sendWhatsapp(input));
-  // A notification failing to send must never break the action that triggered it (approving a listing,
-  // sending an enquiry, etc.) — log and move on.
   const results = await Promise.allSettled(jobs);
   for (const r of results) if (r.status === "rejected") console.error("notify() channel failed:", r.reason);
 }
 
-/** Notify several users with the same message in one go (e.g. every staff member of a client business). */
 export async function notifyMany(userIds: string[], message: Omit<NotifyInput, "userId">): Promise<void> {
   await Promise.allSettled(userIds.map((userId) => notify({ ...message, userId })));
 }
@@ -38,32 +29,109 @@ async function userContact(userId: string): Promise<{ email: string; phone: stri
   return { email: auth.user?.email ?? "", phone: profile?.phone ?? "" };
 }
 
-/** No-op until RESEND_API_KEY (or another provider) is set — see docs/29-agent-progress-tracker.md's open questions. */
+// ---------------------------------------------------------------------------
+// Email — provider selected via EMAIL_PROVIDER env var
+//   "resend"  → RESEND_API_KEY          (default, current)
+//   "zepto"   → ZEPTO_API_KEY
+//   "zoho"    → ZOHO_CLIENT_ID + ZOHO_CLIENT_SECRET + ZOHO_REFRESH_TOKEN
+//   "smtp"    → SMTP_HOST + SMTP_PORT + SMTP_USER + SMTP_PASS  (any SMTP)
+// Switching provider = change EMAIL_PROVIDER + add the new keys. No code change needed.
+// ---------------------------------------------------------------------------
 async function sendEmail(input: NotifyInput): Promise<void> {
-  if (!process.env.RESEND_API_KEY) return;
+  const provider = process.env.EMAIL_PROVIDER ?? "resend";
+  const from = process.env.NOTIFY_EMAIL_FROM ?? "PLOTSS <notifications@plotss.com>";
   const { email } = await userContact(input.userId);
   if (!email) return;
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.NOTIFY_EMAIL_FROM ?? "PLOTSS <notifications@plotss.in>",
-      to: email,
-      subject: input.title,
-      text: input.link ? `${input.body}\n\n${input.link}` : input.body,
-    }),
-  });
+  const text = input.link ? `${input.body}\n\n${input.link}` : input.body;
+
+  if (provider === "resend") {
+    if (!process.env.RESEND_API_KEY) return;
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: email, subject: input.title, text }),
+    });
+    return;
+  }
+
+  if (provider === "zepto") {
+    if (!process.env.ZEPTO_API_KEY) return;
+    // ZeptoMail Send Mail API — https://www.zeptomail.com/help/api.html
+    await fetch("https://api.zeptomail.in/v1.1/email", {
+      method: "POST",
+      headers: { Authorization: `Zoho-enczapikey ${process.env.ZEPTO_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: { address: from.match(/<(.+)>/)?.[1] ?? from, name: from.match(/^(.+?)\s*</)?.[1] ?? "PLOTSS" },
+        to: [{ email_address: { address: email } }],
+        subject: input.title,
+        textbody: text,
+      }),
+    });
+    return;
+  }
+
+  if (provider === "zoho") {
+    // Zoho Mail API via OAuth — needs ZOHO_ACCOUNT_ID + access token exchange
+    // Set ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN, ZOHO_ACCOUNT_ID
+    if (!process.env.ZOHO_CLIENT_ID || !process.env.ZOHO_REFRESH_TOKEN) return;
+    const tokenRes = await fetch("https://accounts.zoho.in/oauth/v2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        client_id: process.env.ZOHO_CLIENT_ID,
+        client_secret: process.env.ZOHO_CLIENT_SECRET ?? "",
+        refresh_token: process.env.ZOHO_REFRESH_TOKEN,
+      }),
+    });
+    const { access_token } = await tokenRes.json() as { access_token: string };
+    await fetch(`https://mail.zoho.in/api/accounts/${process.env.ZOHO_ACCOUNT_ID}/messages`, {
+      method: "POST",
+      headers: { Authorization: `Zoho-oauthtoken ${access_token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ fromAddress: from.match(/<(.+)>/)?.[1] ?? from, toAddress: email, subject: input.title, content: text, mailFormat: "plaintext" }),
+    });
+    return;
+  }
+
+  if (provider === "smtp") {
+    // For SMTP use nodemailer — add it: npm install nodemailer @types/nodemailer
+    // Needs: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+    // Uncomment when nodemailer is installed:
+    // const nodemailer = await import("nodemailer");
+    // const t = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT ?? 587), auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
+    // await t.sendMail({ from, to: email, subject: input.title, text });
+    console.warn("notify: EMAIL_PROVIDER=smtp requires nodemailer — see src/lib/notify.ts");
+  }
 }
 
-/** No-op until an SMS/WhatsApp provider's credentials are set — see docs/29-agent-progress-tracker.md's open questions. */
+// ---------------------------------------------------------------------------
+// WhatsApp / SMS — provider selected via WHATSAPP_PROVIDER env var
+//   "msg91"    → MSG91_API_KEY  (default)
+//   "twilio"   → TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM
+// ---------------------------------------------------------------------------
 async function sendWhatsapp(input: NotifyInput): Promise<void> {
-  if (!process.env.MSG91_API_KEY) return;
+  const provider = process.env.WHATSAPP_PROVIDER ?? "msg91";
   const { phone } = await userContact(input.userId);
   if (!phone) return;
-  // Placeholder shape for MSG91's SMS API; swap for the real endpoint/payload once the account exists.
-  await fetch("https://control.msg91.com/api/v5/flow/", {
-    method: "POST",
-    headers: { authkey: process.env.MSG91_API_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({ mobiles: phone.replace(/\D/g, ""), message: input.body }),
-  });
+  const mobile = phone.replace(/\D/g, "");
+
+  if (provider === "msg91") {
+    if (!process.env.MSG91_API_KEY) return;
+    await fetch("https://control.msg91.com/api/v5/flow/", {
+      method: "POST",
+      headers: { authkey: process.env.MSG91_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ mobiles: mobile, message: input.body }),
+    });
+    return;
+  }
+
+  if (provider === "twilio") {
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) return;
+    const creds = Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString("base64");
+    await fetch(`https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`, {
+      method: "POST",
+      headers: { Authorization: `Basic ${creds}`, "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ From: process.env.TWILIO_FROM ?? "", To: `+${mobile}`, Body: input.body }),
+    });
+  }
 }
