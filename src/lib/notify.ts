@@ -39,7 +39,7 @@ async function userContact(userId: string): Promise<{ email: string; phone: stri
 // ---------------------------------------------------------------------------
 async function sendEmail(input: NotifyInput): Promise<void> {
   const provider = process.env.EMAIL_PROVIDER ?? "resend";
-  const from = process.env.NOTIFY_EMAIL_FROM ?? "PLOTSS <notifications@plotss.com>";
+  const from = process.env.NOTIFY_EMAIL_FROM ?? "PLOTSS <noreply@plotss.com>";
   const { email } = await userContact(input.userId);
   if (!email) return;
   const text = input.link ? `${input.body}\n\n${input.link}` : input.body;
@@ -58,7 +58,8 @@ async function sendEmail(input: NotifyInput): Promise<void> {
     if (!process.env.ZEPTO_API_KEY) return;
     // ZeptoMail Send Mail API — host from ZeptoMail dashboard (cpaas.zoho.com for India accounts)
     const zeptoHost = process.env.ZEPTO_HOST ?? "cpaas.zoho.com";
-    await fetch(`https://${zeptoHost}/v1.1/email`, {
+    // ZEPTO_API_KEY must be the raw encoded key only (no "Zoho-enczapikey" prefix — we add it here)
+    const res = await fetch(`https://${zeptoHost}/v1.1/email`, {
       method: "POST",
       headers: { Authorization: `Zoho-enczapikey ${process.env.ZEPTO_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -68,6 +69,10 @@ async function sendEmail(input: NotifyInput): Promise<void> {
         textbody: text,
       }),
     });
+    if (!res.ok) {
+      // Log status only — never log response body which may echo back sensitive header values
+      console.error(`ZeptoMail delivery failed: HTTP ${res.status}`);
+    }
     return;
   }
 
