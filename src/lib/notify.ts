@@ -56,8 +56,9 @@ async function sendEmail(input: NotifyInput): Promise<void> {
 
   if (provider === "zepto") {
     if (!process.env.ZEPTO_API_KEY) return;
-    // ZeptoMail Send Mail API — https://www.zeptomail.com/help/api.html
-    await fetch("https://api.zeptomail.in/v1.1/email", {
+    // ZeptoMail Send Mail API — host from ZeptoMail dashboard (cpaas.zoho.com for India accounts)
+    const zeptoHost = process.env.ZEPTO_HOST ?? "cpaas.zoho.com";
+    await fetch(`https://${zeptoHost}/v1.1/email`, {
       method: "POST",
       headers: { Authorization: `Zoho-enczapikey ${process.env.ZEPTO_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
