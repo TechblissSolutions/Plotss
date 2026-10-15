@@ -48,8 +48,19 @@ export async function GET(request: NextRequest) {
         .select("onboarded_at, role")
         .eq("id", session.user.id)
         .single();
+
+      // Apply intended_role from signup metadata if role is still default (buyer).
+      const intendedRole = session.user.user_metadata?.intended_role as string | undefined;
+      if (intendedRole && intendedRole !== "buyer" && profile?.role === "buyer") {
+        await supabase.from("profiles").update({ role: intendedRole }).eq("id", session.user.id);
+      }
+
+      const effectiveRole = (intendedRole && intendedRole !== "buyer" && profile?.role === "buyer")
+        ? intendedRole
+        : profile?.role;
+
       const dest = profile?.onboarded_at
-        ? dashboardPath(profile.role as Role)
+        ? dashboardPath(effectiveRole as Role)
         : "/onboarding";
       return NextResponse.redirect(`${origin}${dest}`);
     }

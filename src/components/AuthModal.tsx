@@ -132,12 +132,12 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
     if (password.length < 6) throw new Error("Password must be at least 6 characters");
     if (password !== confirmPassword) throw new Error("Passwords do not match");
     const sb = supabaseBrowser();
-    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: fullName.trim(), phone: `+91${digits}` }, emailRedirectTo: `${location.origin}/auth/callback?next=/onboarding` } });
+    // Pass intended role in user_metadata so the DB trigger + onboarding can use it even without a session.
+    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: fullName.trim(), phone: `+91${digits}`, intended_role: intended }, emailRedirectTo: `${location.origin}/auth/callback?next=/onboarding` } });
     if (error) throw error;
     if (!data.session) {
-      // Email confirmation is switched on for this Supabase project: no session yet.
-      setNotice("Check your email to confirm your account, then sign in.");
-      switchMode("login");
+      // Email confirmation required — show notice WITHOUT switching mode (switchMode clears notice).
+      setNotice("Almost done! Check your email and click the confirmation link, then come back to sign in.");
       return;
     }
     const patch: { role?: string; phone: string } = { phone: `+91${digits}` };
