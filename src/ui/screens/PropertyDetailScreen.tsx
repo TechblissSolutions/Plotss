@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Listing, ScreenId } from '../types';
 import { useData } from '../data/DataProvider';
 import { AbstractPlotVisual } from '../components/AbstractPlotVisual';
@@ -541,9 +542,17 @@ Phone: ${enquiryPhone}` : ''}`;
                 <h3 className="font-serif-headline text-lg font-bold text-ivory mb-2">
                   About this land
                 </h3>
-                <p className={`text-xs sm:text-sm text-line leading-relaxed ${descOpen ? '' : 'line-clamp-4'}`}>
-                  {listing.aiDescription}
-                </p>
+                <div
+                  style={{
+                    maxHeight: descOpen ? '600px' : '5.6em',
+                    overflow: 'hidden',
+                    transition: 'max-height 220ms cubic-bezier(0.23,1,0.32,1)',
+                  }}
+                >
+                  <p className="text-xs sm:text-sm text-line leading-relaxed">
+                    {listing.aiDescription}
+                  </p>
+                </div>
                 {listing.aiDescription.length > 260 && (
                   <button type="button" onClick={() => setDescOpen((v) => !v)} className="mt-2 text-xs font-semibold text-signal hover:underline">
                     {descOpen ? 'Show less' : 'Read more →'}
@@ -802,8 +811,16 @@ Phone: ${enquiryPhone}` : ''}`;
                 </p>
               </div>
 
+              <AnimatePresence mode="wait">
               {enquirySubmitted ? (
-                <div className="py-6 text-center space-y-3">
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, y: 16, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ type: 'spring', duration: 0.45, bounce: 0.15 }}
+                  className="py-6 text-center space-y-3"
+                >
                   <div className="w-10 h-10 rounded-full paint-moss text-ivory flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
@@ -819,7 +836,7 @@ Phone: ${enquiryPhone}` : ''}`;
                   >
                     Modify Request
                   </button>
-                </div>
+                </motion.div>
               ) : (
                 <form onSubmit={handleEnquirySubmit} className="mt-4 space-y-3 text-xs">
                   <button type="button" onClick={() => setEnquiryMessage('Please call me back to discuss this listing.')} className="w-full rounded-sm border border-line py-2 text-xs font-semibold text-clay hover:border-clay">
@@ -874,6 +891,7 @@ Phone: ${enquiryPhone}` : ''}`;
                   {enquiryError && <p className="text-clay text-xs font-semibold" role="alert">{enquiryError}</p>}
                 </form>
               )}
+              </AnimatePresence>
             </div>
 
           </div>

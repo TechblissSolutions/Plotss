@@ -581,11 +581,6 @@
    "file": "screens/HomeScreen.tsx"
   },
   {
-   "key": "home.ai-signature-selections",
-   "default": "AI Signature Selections",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
    "key": "home.are-you-an-industrial-broker-or",
    "default": "Are you an Industrial Broker or Land Consultant?",
    "file": "screens/HomeScreen.tsx"
@@ -597,12 +592,12 @@
   },
   {
    "key": "home.cat-commercial",
-   "default": "Commercial and mixed-use land listings for offices, retail and campuses.",
+   "default": "Commercial and mixed-use land for offices, retail and campuses.",
    "file": "screens/HomeScreen.tsx"
   },
   {
    "key": "home.cat-industrial",
-   "default": "Industrial plots and land with power, road access and zoning details.",
+   "default": "Industrial plots with power, road access and full zoning details.",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -612,12 +607,7 @@
   },
   {
    "key": "home.cat-warehousing",
-   "default": "Logistics and warehousing land near highways and freight corridors.",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
-   "key": "home.channel-partner-network",
-   "default": "Channel Partner Network",
+   "default": "Logistics land near highways and freight corridors.",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -627,7 +617,7 @@
   },
   {
    "key": "home.cities-title",
-   "default": "Explore Our Launch Cities",
+   "default": "Launch Cities",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -652,22 +642,12 @@
   },
   {
    "key": "home.explore-by-land-classification",
-   "default": "Explore by Land Classification",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
-   "key": "home.featured-across-ncr",
-   "default": "Featured Across India",
+   "default": "Land Classifications",
    "file": "screens/HomeScreen.tsx"
   },
   {
    "key": "home.featured-title",
    "default": "Featured Land Listings",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
-   "key": "home.geographic-coverage",
-   "default": "Geographic Coverage",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -732,27 +712,12 @@
   },
   {
    "key": "home.industrial-land-due-diligence-insights",
-   "default": "Industrial Land Due Diligence Insights",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
-   "key": "home.institutional-protocol",
-   "default": "Institutional Protocol",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
-   "key": "home.institutional-trust",
-   "default": "Institutional Trust",
+   "default": "Market Intelligence",
    "file": "screens/HomeScreen.tsx"
   },
   {
    "key": "home.list-your-client-mandates-with-ai",
    "default": "List your client mandates with AI-generated dossiers, receive direct institutional buyer leads with verified budgets, and showcase your verified RERA credential page.",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
-   "key": "home.market-intelligence",
-   "default": "Market Intelligence",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -776,18 +741,13 @@
    "file": "screens/HomeScreen.tsx"
   },
   {
-   "key": "home.prime-districts-eyebrow",
-   "default": "Prime Micro-Markets",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
    "key": "home.prime-districts-subtitle",
    "default": "The corridors buyers search for most, right now.",
    "file": "screens/HomeScreen.tsx"
   },
   {
    "key": "home.prime-districts-title",
-   "default": "Jump straight to an area",
+   "default": "Prime Micro-Markets",
    "file": "screens/HomeScreen.tsx"
   },
   {
@@ -923,11 +883,6 @@
   {
    "key": "home.what-does-verified-actually-mean-on",
    "default": "What does \"Verified\" actually mean on PLOTSS?",
-   "file": "screens/HomeScreen.tsx"
-  },
-  {
-   "key": "home.zoning-asset-classes",
-   "default": "Zoning & Asset Classes",
    "file": "screens/HomeScreen.tsx"
   },
   {

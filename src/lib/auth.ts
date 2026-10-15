@@ -11,6 +11,15 @@ export async function requireAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
   // Full-page sign-in for the super admin: Google or email + password only, never phone OTP.
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, suspended_at, deleted_at")
+    .eq("id", user.id)
+    .single();
   if (profile?.role !== "admin") redirect("/");
+  // Suspended or deleted admins lose access immediately on next request.
+  if (profile?.suspended_at || profile?.deleted_at) {
+    await supabase.auth.signOut();
+    redirect("/login?error=account_suspended");
+  }
 }

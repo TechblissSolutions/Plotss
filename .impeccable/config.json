@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-13T11:57:32.182Z",
+        "reason": "Admin panel is an operate-mode back-office tool; Inter at 13px is chosen for legibility over distinctiveness"
+      }
+    ]
+  }
+}

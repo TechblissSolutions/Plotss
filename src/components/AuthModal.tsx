@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,6 +36,7 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
   const [err, setErr] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
   const live = isSupabaseBrowserConfigured;
 
   useEffect(() => {
@@ -116,10 +117,11 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
   });
 
   const forgotPassword = () => guard(async () => {
-    if (!email) throw new Error("Enter your email address first, then tap “Forgot password”");
-    const { error } = await supabaseBrowser().auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/reset-password` });
+    if (!email) throw new Error("Enter your email address to receive a reset link");
+    const { error } = await supabaseBrowser().auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/auth/callback?next=/reset-password` });
     if (error) throw error;
     setNotice("Password reset link sent — check your email.");
+    setForgotMode(false);
   });
 
   const emailRegister = () => guard(async () => {
@@ -162,7 +164,7 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
 
   const switchMode = (m: "login" | "register") => {
     if (m === mode) return;
-    setMode(m); setStep("choose"); setErr("");
+    setMode(m); setStep("choose"); setErr(""); setForgotMode(false);
     if (inline) router.replace(`/${m}`);
   };
 
@@ -262,24 +264,38 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
                     <label className="block text-xs font-semibold uppercase tracking-wide text-stone">Email address</label>
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" className="hairline mt-1 w-full rounded-md bg-white px-3 py-2.5" />
                   </div>
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-stone">Password</label>
-                      {mode === "login" && (
-                        <button type="button" disabled={busy} onClick={forgotPassword} className="text-xs font-semibold text-clay underline">Forgot password?</button>
+                  {mode === "login" && forgotMode ? (
+                    <>
+                      <p className="text-sm text-stone">Enter your email address and we'll send you a reset link.</p>
+                      <button disabled={busy} onClick={forgotPassword} className="paint-graphite w-full rounded-md px-4 py-2.5 font-medium text-ivory">
+                        Send reset link
+                      </button>
+                      <button type="button" onClick={() => { setForgotMode(false); setErr(""); }} className="w-full text-center text-xs text-stone underline">
+                        Back to login
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-stone">Password</label>
+                          {mode === "login" && (
+                            <button type="button" disabled={busy} onClick={() => { setForgotMode(true); setErr(""); setNotice(""); }} className="text-xs font-semibold text-clay underline">Forgot password?</button>
+                          )}
+                        </div>
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === "register" ? "Minimum 6 characters" : "Your password"} className="hairline mt-1 w-full rounded-md bg-white px-3 py-2.5" />
+                      </div>
+                      {mode === "register" && (
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-stone">Confirm password</label>
+                          <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter your password" className="hairline mt-1 w-full rounded-md bg-white px-3 py-2.5" />
+                        </div>
                       )}
-                    </div>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === "register" ? "Minimum 6 characters" : "Your password"} className="hairline mt-1 w-full rounded-md bg-white px-3 py-2.5" />
-                  </div>
-                  {mode === "register" && (
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-stone">Confirm password</label>
-                      <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter your password" className="hairline mt-1 w-full rounded-md bg-white px-3 py-2.5" />
-                    </div>
+                      <button disabled={busy} onClick={mode === "login" ? emailLogin : emailRegister} className="paint-graphite w-full rounded-md px-4 py-2.5 font-medium text-ivory">
+                        {mode === "login" ? "Login" : "Create account"}
+                      </button>
+                    </>
                   )}
-                  <button disabled={busy} onClick={mode === "login" ? emailLogin : emailRegister} className="paint-graphite w-full rounded-md px-4 py-2.5 font-medium text-ivory">
-                    {mode === "login" ? "Login" : "Create account"}
-                  </button>
                 </div>
               ) : (
                 <p className="text-xs text-stone">Demo mode: Supabase Auth is not connected. Use the role buttons below to continue.</p>

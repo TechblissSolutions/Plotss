@@ -77,7 +77,53 @@
   border: var(--t-border) solid var(--c-line);
 }
 
-html { font-size: var(--t-base); }
+/* ─── Mobile-native baseline (mobile-native skill) ─────────────────────────
+   Kills the 5 loudest "this is a website" signals on iOS/Android.
+   See: gray tap flash, sticky hover, input zoom, scroll overscroll, tap delay.
+   ─────────────────────────────────────────────────────────────────────────── */
+html {
+  font-size: var(--t-base);
+  -webkit-tap-highlight-color: transparent;   /* kill gray flash on tap */
+  -webkit-text-size-adjust: 100%;             /* no font inflation in landscape */
+  overscroll-behavior: none;                  /* no pull-to-refresh hijack */
+  scroll-behavior: smooth;
+}
+
+/* Inputs: 16px prevents iOS Safari zoom on focus */
+input, textarea, select { font-size: 16px; }
+
+/* Buttons/links: instant tap response, no tap delay, no long-press text select */
+button, a, [role="button"], summary {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: pointer;
+}
+
+/* Emil: strong ease-out curve tokens for all animations */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Emil: every button/link gets press feedback (scale 0.97 on :active).
+   Nothing in the real world stays still when you press it. */
+button:active, a:active, [role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 100ms var(--ease-out);
+}
+
+/* Scrollable inner containers (dashboards, admin tables) — contain their own scroll,
+   don't chain to the page on overscroll */
+.scroll-contain {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Smooth inner scroll on dashboard panels */
+.dashboard-scroll { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 body {
   background: var(--f-ivory);
@@ -101,6 +147,45 @@ h1, h2, h3, h4, h5, h6, .font-display {
 
 .text-display { font-size: var(--t-display); }
 .num { font-family: var(--t-font-data); font-variant-numeric: tabular-nums; }
+
+/* ─── Browser surfaces — themed so the page was built, not assembled ──────────
+   Text selection, caret, scrollbar, focus ring: the parts you did not draw
+   still carry the design. These are the cheapest signal of craft.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Text selection */
+::selection {
+  background: var(--c-signal);
+  color: var(--c-graphite);
+}
+::-moz-selection {
+  background: var(--c-signal);
+  color: var(--c-graphite);
+}
+
+/* Caret color in text inputs */
+input, textarea {
+  caret-color: var(--c-clay);
+}
+
+/* Focus rings — clay outline, enough contrast on any bg */
+:focus-visible {
+  outline: 2px solid var(--c-clay);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Custom scrollbar (WebKit) */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--c-line);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--c-stone); }
+
+/* Underline offset — links read cleaner with spacing */
+a { text-underline-offset: 3px; }
 
 /* AI micro-pattern: every AI-generated element carries this tag. */
 .ai-tag {

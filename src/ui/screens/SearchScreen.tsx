@@ -4,6 +4,7 @@ import { NearMe } from '../components/NearMe';
 import { distanceKm, formatKm, listingPoint, mapsHref, type Origin } from '@/lib/geo';
 import { track } from '../tracking/tracker';
 import React, { useState, useMemo } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Listing, ListingCategory, ListingType, ZoneType, ScreenId, ParsedQuery } from '../types';
 import { useData } from '../data/DataProvider';
 import { AbstractPlotVisual } from '../components/AbstractPlotVisual';
@@ -74,6 +75,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   const changeOrigin = (o: Origin | null) => { setOrigin(o); setSortBy(o ? 'nearest' : 'match'); };
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
   // Remove a parsed AI chip and undo the filter it set
   const handleRemoveChip = (chip: string) => {
@@ -197,9 +200,14 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
 
               {/* Removable Chips */}
               <div className="flex items-center gap-1.5 flex-wrap">
+                <AnimatePresence>
                 {activeChips.map((chip) => (
-                  <span
+                  <motion.span
                     key={chip}
+                    initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.85 }}
+                    transition={{ duration: 0.15, ease: EASE_OUT }}
                     className="inline-flex items-center gap-1 paint-graphite text-ivory text-xs font-medium px-2.5 py-1 rounded-sm border border-graphite font-tabular shadow-2xs"
                   >
                     <span>{chip}</span>
@@ -210,8 +218,9 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                     >
                       <X className="w-3 h-3" />
                     </button>
-                  </span>
+                  </motion.span>
                 ))}
+                </AnimatePresence>
 
                 {activeChips.length === 0 && (
                   <span className="text-xs text-stone italic">
@@ -524,7 +533,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                     <div
                       key={plot.id}
                       id={`search-card-${plot.id}`}
-                      className="group bg-white rounded-sm border border-line hover:border-graphite transition-all overflow-hidden flex flex-col cursor-pointer shadow-xs hover:shadow-lg hover:-translate-y-0.5"
+                      className="group bg-white rounded-sm border border-line hover:border-graphite transition-[border-color,box-shadow,transform] duration-200 overflow-hidden flex flex-col cursor-pointer shadow-xs hover:shadow-lg hover:-translate-y-1 active:scale-[0.99]"
+                      style={{ transitionTimingFunction: 'cubic-bezier(0.23,1,0.32,1)' }}
                       onClick={() => onSelectListing(plot.slug)}
                     >
                       {/* Abstract 3D geometric plot wireframe or Real Drone Photo */}
@@ -679,7 +689,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                     <div
                       key={plot.id}
                       onClick={() => onSelectListing(plot.slug)}
-                      className="group bg-white rounded-sm border border-line hover:border-graphite p-4 transition-all flex flex-col md:flex-row gap-5 cursor-pointer shadow-xs hover:shadow-lg hover:-translate-y-0.5"
+                      className="group bg-white rounded-sm border border-line hover:border-graphite p-4 transition-[border-color,box-shadow,transform] duration-200 flex flex-col md:flex-row gap-5 cursor-pointer shadow-xs hover:shadow-lg hover:-translate-y-1 active:scale-[0.99]"
+                      style={{ transitionTimingFunction: 'cubic-bezier(0.23,1,0.32,1)' }}
                     >
                       <div className="w-full md:w-56 h-36 shrink-0 rounded-[3px] overflow-hidden">
                         <AbstractPlotVisual
@@ -779,9 +790,16 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
       </div>
 
       {/* Mobile Filter Slide-out Drawer */}
+      <AnimatePresence>
       {mobileFilterOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden bg-graphite/75 backdrop-blur-xs">
-          <div className="w-4/5 max-w-sm bg-white h-full p-6 overflow-y-auto ml-auto space-y-6">
+          <motion.div
+            initial={{ x: reduceMotion ? 0 : '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: reduceMotion ? 0 : '100%' }}
+            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
+            className="w-4/5 max-w-sm bg-white h-full p-6 overflow-y-auto ml-auto space-y-6"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <span className="font-serif-headline text-lg font-bold text-graphite">Filters</span>
               <button onClick={() => setMobileFilterOpen(false)} className="p-1 cursor-pointer">
@@ -826,9 +844,10 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
             >
               Apply Filters ({filteredListings.length} Results)
             </button>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
     </div>
   );
 };

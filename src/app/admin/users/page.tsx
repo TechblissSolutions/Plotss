@@ -1,148 +1,172 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { adminBrokers, adminClients, adminUserCapabilities, adminUsers } from "@/lib/db/admin";
-import { adminGrantCapabilityAction, adminRevokeCapabilityAction, changeRole, verifyBroker } from "../actions";
-import { Badge, btn, Card, EmptyState, PageHeader } from "../ui";
+import { searchUsers } from "@/lib/db/admin";
+import { Badge, btn, EmptyState, PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Users & brokers" };
+export const metadata = { title: "People & Accounts — Admin" };
 
 const ROLE_TONE = { admin: "red", broker: "blue", seller: "amber", buyer: "gray" } as const;
-const th = "px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600";
+const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+const th = "px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500";
 
-export default async function UsersPage() {
+function statusTone(u: { suspended_at: string | null; deleted_at: string | null }) {
+  if (u.deleted_at) return "red";
+  if (u.suspended_at) return "amber";
+  return "green";
+}
+function statusLabel(u: { suspended_at: string | null; deleted_at: string | null }) {
+  if (u.deleted_at) return "Deleted";
+  if (u.suspended_at) return "Suspended";
+  return "Active";
+}
+
+export default async function PeopleAccountsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    q?: string; status?: string; capability?: string; page?: string;
+  }>;
+}) {
   await requireAdmin();
-  const [users, brokers, clients, capsMap] = await Promise.all([adminUsers(), adminBrokers(), adminClients(), adminUserCapabilities()]);
+  const sp = await searchParams;
+  const q = (sp.q ?? "").trim();
+  const status = (sp.status as "all" | "active" | "suspended" | "deleted") || "all";
+  const capability = sp.capability as "can_buy" | "can_sell" | "is_broker_staff" | undefined;
+  const page = Math.max(1, parseInt(sp.page ?? "1", 10));
+  const perPage = 25;
+
+  const { rows: users, total } = await searchUsers({ q, status, capability, page, perPage });
+  const totalPages = Math.ceil(total / perPage);
+
+  const buildUrl = (overrides: Record<string, string | undefined>) => {
+    const p = new URLSearchParams();
+    const merged = { q, status, capability, page: String(page), ...overrides };
+    for (const [k, v] of Object.entries(merged)) if (v && v !== "all" && v !== "1") p.set(k, v);
+    const qs = p.toString();
+    return `/admin/users${qs ? `?${qs}` : ""}`;
+  };
+
   return (
     <main className="mx-auto max-w-5xl">
-      <PageHeader title="Users & brokers" subtitle="Change what each person can do. Only give the admin role to people you fully trust." />
+      <PageHeader
+        title="People & Accounts"
+        subtitle={`${total} ${total === 1 ? "person" : "people"} — click a row to manage their account`}
+      />
 
-      <Card title={`Users (${users.length})`} note={`Set a role of “broker” and pick a client to let that person manage only that client’s listings. See Clients to add a client first.`}>
-        {users.length === 0 ? <EmptyState title="No users yet">People appear here after they sign in for the first time.</EmptyState> : (
-          <div className="-mx-5 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <caption className="sr-only">All users with their role and capabilities</caption>
-              <thead className="border-y border-slate-200 bg-slate-50">
-                <tr>
-                  <th scope="col" className={th}>Person</th>
-                  <th scope="col" className={th}>Joined</th>
-                  <th scope="col" className={th}>Current role</th>
-                  <th scope="col" className={th}>Change role</th>
-                  <th scope="col" className={th}>Capabilities</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {users.map((u) => {
-                  const who = u.name || u.email || u.phone || "Unnamed";
-                  const caps = capsMap.get(u.id);
-                  const canSell = caps?.can_sell ?? (u.role === "seller" || u.role === "broker");
-                  const isBroker = caps?.is_broker_staff ?? (u.role === "broker");
-                  const brokerIdVal = caps?.broker_id ?? u.brokerId ?? "";
-                  return (
-                    <tr key={u.id}>
+      {/* Filter bar */}
+      <form method="GET" action="/admin/users" className="mb-6 flex flex-wrap items-end gap-3">
+        <div className="flex-1 min-w-48">
+          <label htmlFor="q-input" className="mb-1.5 block text-xs font-medium text-slate-600">Search</label>
+          <input
+            id="q-input" name="q" defaultValue={q} placeholder="Name or phone…"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-400 focus:outline-none"
+          />
+        </div>
+        <div>
+          <label htmlFor="status-sel" className="mb-1.5 block text-xs font-medium text-slate-600">Status</label>
+          <select id="status-sel" name="status" defaultValue={status}
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-400 focus:outline-none">
+            <option value="all">All statuses</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="deleted">Deleted</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="cap-sel" className="mb-1.5 block text-xs font-medium text-slate-600">Capability</label>
+          <select id="cap-sel" name="capability" defaultValue={capability ?? ""}
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-400 focus:outline-none">
+            <option value="">Any</option>
+            <option value="can_buy">can_buy</option>
+            <option value="can_sell">can_sell</option>
+            <option value="is_broker_staff">broker staff</option>
+          </select>
+        </div>
+        <button type="submit" className={btn.primary}>Filter</button>
+        {(q || status !== "all" || capability) && (
+          <Link href="/admin/users" className={btn.ghost}>Clear</Link>
+        )}
+      </form>
+
+      {/* Table */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+        {users.length === 0 ? (
+          <EmptyState title="No people found">
+            {q || status !== "all" || capability ? "Try a different filter." : "No one has signed up yet."}
+          </EmptyState>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <caption className="sr-only">People and accounts</caption>
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50 text-left">
+                    <th scope="col" className={th}>Person</th>
+                    <th scope="col" className={`${th} hidden sm:table-cell`}>Joined</th>
+                    <th scope="col" className={`${th} hidden md:table-cell`}>Role</th>
+                    <th scope="col" className={th}>Status</th>
+                    <th scope="col" className={`${th} hidden lg:table-cell`}>Capabilities</th>
+                    <th scope="col" className={th}></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {users.map((u) => (
+                    <tr key={u.id} className="hover:bg-slate-50">
                       <td className="px-4 py-3">
                         <div className="font-medium text-slate-900">{u.name || "Name not set"}</div>
-                        <div className="text-xs text-slate-600">{u.email || u.phone}</div>
+                        <div className="text-xs text-slate-500">{u.email || u.phone || "—"}</div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-slate-700">{new Date(u.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
-                      <td className="px-4 py-3">
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-slate-600 sm:table-cell">{fmt(u.created_at)}</td>
+                      <td className="hidden px-4 py-3 md:table-cell">
                         <Badge tone={ROLE_TONE[u.role as keyof typeof ROLE_TONE] ?? "gray"}>{u.role}</Badge>
-                        {u.role === "broker" && u.brokerId && (
-                          <div className="mt-1 text-xs text-slate-500">{clients.find((c) => c.id === u.brokerId)?.name ?? "Unknown client"}</div>
-                        )}
                       </td>
                       <td className="px-4 py-3">
-                        <form action={changeRole} className="flex flex-wrap items-center gap-2">
-                          <input type="hidden" name="id" value={u.id} />
-                          <select name="role" defaultValue={u.role} aria-label={`Role for ${who}`} className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm">
-                            {["buyer", "seller", "broker", "admin"].map((r) => <option key={r}>{r}</option>)}
-                          </select>
-                          <select name="brokerId" defaultValue={u.brokerId ?? ""} aria-label={`Client for ${who}`} className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm">
-                            <option value="">— no client —</option>
-                            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}{c.firmName ? ` (${c.firmName})` : ""}</option>)}
-                          </select>
-                          <button type="submit" className={btn.small} aria-label={`Save role for ${who}`}>Save</button>
-                        </form>
+                        <Badge tone={statusTone(u)}>{statusLabel(u)}</Badge>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col gap-1.5">
-                          {/* can_sell */}
-                          <div className="flex items-center gap-2">
-                            <span className="w-16 text-xs text-slate-500">can_sell</span>
-                            {canSell ? (
-                              <form action={adminRevokeCapabilityAction} className="inline">
-                                <input type="hidden" name="userId" value={u.id} />
-                                <input type="hidden" name="capability" value="can_sell" />
-                                <button type="submit" className="rounded border border-red-200 px-2 py-0.5 text-[11px] font-medium text-red-700 hover:bg-red-50">Revoke</button>
-                              </form>
-                            ) : (
-                              <form action={adminGrantCapabilityAction} className="inline">
-                                <input type="hidden" name="userId" value={u.id} />
-                                <input type="hidden" name="capability" value="can_sell" />
-                                <button type="submit" className="rounded border border-emerald-200 px-2 py-0.5 text-[11px] font-medium text-emerald-700 hover:bg-emerald-50">Grant</button>
-                              </form>
-                            )}
-                            <Badge tone={canSell ? "green" : "gray"}>{canSell ? "on" : "off"}</Badge>
-                          </div>
-                          {/* is_broker_staff */}
-                          <div className="flex items-center gap-2">
-                            <span className="w-16 text-xs text-slate-500">broker</span>
-                            {isBroker ? (
-                              <form action={adminRevokeCapabilityAction} className="inline">
-                                <input type="hidden" name="userId" value={u.id} />
-                                <input type="hidden" name="capability" value="is_broker_staff" />
-                                <button type="submit" className="rounded border border-red-200 px-2 py-0.5 text-[11px] font-medium text-red-700 hover:bg-red-50">Revoke</button>
-                              </form>
-                            ) : (
-                              <form action={adminGrantCapabilityAction} className="inline">
-                                <input type="hidden" name="userId" value={u.id} />
-                                <input type="hidden" name="capability" value="is_broker_staff" />
-                                <select name="brokerId" defaultValue={brokerIdVal} aria-label={`Broker client for ${who}`} className="rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[11px]">
-                                  <option value="">— pick client —</option>
-                                  {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
-                                <button type="submit" className="rounded border border-blue-200 px-2 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50">Grant</button>
-                              </form>
-                            )}
-                            <Badge tone={isBroker ? "blue" : "gray"}>{isBroker ? "on" : "off"}</Badge>
-                          </div>
+                      <td className="hidden px-4 py-3 lg:table-cell">
+                        <div className="flex flex-wrap gap-1">
+                          {u.can_buy && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">buy</span>}
+                          {u.can_sell && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">sell</span>}
+                          {u.is_broker_staff && <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700">broker</span>}
                         </div>
                       </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      <div className="mt-6">
-        <Card title="Broker verification" note="A broker's public profile and Verified badge appear only after you check their RERA or agency proof.">
-          {brokers.length === 0 ? <EmptyState title="No brokers yet">Broker sign-ups will appear here once broker features are switched on.</EmptyState> : (
-            <div className="-mx-5 overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <caption className="sr-only">Brokers and their verification status</caption>
-                <thead className="border-y border-slate-200 bg-slate-50"><tr><th scope="col" className={th}>Broker</th><th scope="col" className={th}>RERA no.</th><th scope="col" className={th}>Status</th></tr></thead>
-                <tbody className="divide-y divide-slate-100">
-                  {brokers.map((b) => (
-                    <tr key={b.id}>
-                      <td className="px-4 py-3"><div className="font-medium text-slate-900">{b.name}</div><div className="text-xs text-slate-600">{b.firm_name}</div></td>
-                      <td className="px-4 py-3 text-slate-700">{b.rera_number || "Not given"}</td>
-                      <td className="px-4 py-3">
-                        <form action={verifyBroker} className="flex items-center gap-3">
-                          <input type="hidden" name="id" value={b.id} />
-                          <input type="hidden" name="verified" value={String(!b.verified)} />
-                          <Badge tone={b.verified ? "green" : "gray"}>{b.verified ? "Verified" : "Unverified"}</Badge>
-                          <button type="submit" className={btn.small} aria-label={`${b.verified ? "Revoke" : "Verify"} ${b.name}`}>{b.verified ? "Revoke" : "Verify"}</button>
-                        </form>
+                      <td className="px-4 py-3 text-right">
+                        <Link href={`/admin/users/${u.id}`}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                          Manage →
+                        </Link>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          )}
-        </Card>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">
+                <span className="text-xs text-slate-500">
+                  Page {page} of {totalPages} · {total} people
+                </span>
+                <div className="flex gap-2">
+                  {page > 1 && (
+                    <a href={buildUrl({ page: String(page - 1) })}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                      Previous
+                    </a>
+                  )}
+                  {page < totalPages && (
+                    <a href={buildUrl({ page: String(page + 1) })}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                      Next
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </main>
   );

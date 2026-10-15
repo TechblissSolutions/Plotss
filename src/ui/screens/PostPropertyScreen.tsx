@@ -1,5 +1,6 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { track } from '../tracking/tracker';
 import { T } from '../content';
 import { useData } from '../data/DataProvider';
@@ -63,7 +64,11 @@ export const PostPropertyScreen: React.FC<Props> = ({ onNavigate, isLoggedIn = t
 
   // Steps shown to the seller; the Documents step (3) only exists when documents are collected.
   const flow = useMemo(() => (features.collectDocuments ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 4, 5, 6, 7]), [features.collectDocuments]);
-  const go = (delta: number) => setStep((cur) => flow[Math.min(flow.length - 1, Math.max(0, flow.indexOf(cur) + delta))]);
+  const directionRef = useRef(1);
+  const go = (delta: number) => {
+    directionRef.current = delta > 0 ? 1 : -1;
+    setStep((cur) => flow[Math.min(flow.length - 1, Math.max(0, flow.indexOf(cur) + delta))]);
+  };
 
   // Journey tracking: which step of the seller form is on screen (no field values are ever sent).
   useEffect(() => { track('form_step', 'post', { step: STEPS[step - 1].toLowerCase() }); }, [step]);
@@ -128,6 +133,14 @@ export const PostPropertyScreen: React.FC<Props> = ({ onNavigate, isLoggedIn = t
     <h2 className="font-serif-headline text-2xl font-bold text-graphite">Step {flow.indexOf(n) + 1}: {text}</h2>
   );
 
+  const reduce = useReducedMotion();
+  const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
+  const slideVariants = {
+    enter: (dir: number) => ({ opacity: 0, x: reduce ? 0 : dir * 40 }),
+    center: { opacity: 1, x: 0 },
+    exit: (dir: number) => ({ opacity: 0, x: reduce ? 0 : -dir * 40 }),
+  };
+
   return (
     <div id="post-property-flow" className="min-h-screen bg-ivory text-graphite pb-24">
       <div className="bg-white border-b border-line py-4">
@@ -144,6 +157,17 @@ export const PostPropertyScreen: React.FC<Props> = ({ onNavigate, isLoggedIn = t
             <li key={id} className={`px-3 py-1 rounded-full ${id === step ? 'paint-graphite text-ivory' : i < flow.indexOf(step) ? 'paint-moss text-ivory' : 'border border-line text-stone'}`}>{i + 1}. {STEPS[id - 1]}</li>
           ))}
         </ol>
+
+        <AnimatePresence mode="wait" custom={directionRef.current}>
+        <motion.div
+          key={step}
+          custom={directionRef.current}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.28, ease: EASE_OUT }}
+        >
 
         {step === 1 && (
           <div className={card}>
@@ -282,6 +306,9 @@ export const PostPropertyScreen: React.FC<Props> = ({ onNavigate, isLoggedIn = t
             </div>
           </div>
         )}
+
+        </motion.div>
+        </AnimatePresence>
 
         {error && <p className="mt-4 text-sm font-semibold text-clay" role="alert">{error}</p>}
         {step < 7 && (

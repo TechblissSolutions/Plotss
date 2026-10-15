@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ShaderBackground } from "@/components/ShaderBackground";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SignOutButton } from "@/components/SignOutButton";
 import { getContent } from "@/lib/content/store";
@@ -17,8 +18,9 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
   const notifications = session ? await getNotifications(session.id) : [];
   return (
     <ContentProvider value={content}>
-      <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <header className="relative border-b border-line bg-white overflow-hidden">
+        <ShaderBackground opacity={0.04} className="absolute inset-0 w-full h-full" />
+        <div className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             <Link href="/" className="font-serif-headline text-xl font-bold text-graphite">PLOTSS</Link>
             <Link href="/search" className="hidden text-sm text-stone hover:text-graphite sm:inline">Browse listings</Link>

@@ -93,19 +93,244 @@ export async function setDocumentStatus(docId: string, status: "verified" | "rej
   await recomputeVerified(data.property_id);
 }
 
-export type AdminUser = { id: string; name: string; phone: string; role: Role; created_at: string; email: string; brokerId: string | null };
-export async function adminUsers(): Promise<AdminUser[]> {
-  if (!(await isDbReady())) return [];
+export type AdminUser = {
+  id: string; name: string; phone: string; role: Role; created_at: string; email: string; brokerId: string | null;
+  suspended_at: string | null; deleted_at: string | null;
+  can_buy: boolean; can_sell: boolean; is_broker_staff: boolean;
+};
+
+export type SearchUsersOpts = {
+  q?: string;
+  status?: "all" | "active" | "suspended" | "deleted";
+  capability?: "can_buy" | "can_sell" | "is_broker_staff";
+  brokerId?: string;
+  page?: number;
+  perPage?: number;
+};
+
+export async function searchUsers(opts: SearchUsersOpts = {}): Promise<{ rows: AdminUser[]; total: number }> {
+  if (!(await isDbReady())) return { rows: [], total: 0 };
   const svc = createServiceClient();
-  const [{ data: profiles }, auth] = await Promise.all([
-    svc.from("profiles").select("id,full_name,phone,role,created_at,broker_id").order("created_at", { ascending: false }),
-    svc.auth.admin.listUsers({ perPage: 200 }),
+  const page = Math.max(1, opts.page ?? 1);
+  const perPage = Math.min(100, Math.max(1, opts.perPage ?? 25));
+
+  // When filtering by capability we can't express it as a SQL filter without a join view.
+  // Strategy: fetch all profiles matching status/search filters (up to 2000 safety cap),
+  // join capabilities in memory, filter, then slice for the requested page.
+  // This keeps total and pagination accurate for capability filters.
+  const usesCapabilityFilter = !!opts.capability;
+  const dbLimit = usesCapabilityFilter ? 2000 : perPage;
+  const dbFrom = usesCapabilityFilter ? 0 : (page - 1) * perPage;
+
+  let q = svc
+    .from("profiles")
+    .select("id,full_name,phone,role,created_at,broker_id,suspended_at,deleted_at", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(dbFrom, dbFrom + dbLimit - 1);
+
+  if (opts.q) {
+    const like = `%${opts.q.trim()}%`;
+    q = q.or(`full_name.ilike.${like},phone.ilike.${like}`);
+  }
+  if (opts.status === "active") q = q.is("deleted_at", null).is("suspended_at", null);
+  else if (opts.status === "suspended") q = q.not("suspended_at", "is", null);
+  else if (opts.status === "deleted") q = q.not("deleted_at", "is", null);
+  if (opts.brokerId) q = q.eq("broker_id", opts.brokerId);
+
+  const { data: profiles, count } = await q;
+
+  const ids = (profiles ?? []).map((p) => p.id);
+  const [auth, caps] = await Promise.all([
+    ids.length ? svc.auth.admin.listUsers({ perPage: 1000 }) : Promise.resolve({ data: { users: [] } }),
+    ids.length
+      ? svc.from("account_capabilities").select("user_id,can_buy,can_sell,is_broker_staff").in("user_id", ids)
+      : Promise.resolve({ data: [] }),
   ]);
+
   const email = new Map((auth.data?.users ?? []).map((u) => [u.id, u.email ?? ""]));
-  return (profiles ?? []).map((p) => ({
-    id: p.id, name: p.full_name ?? "", phone: p.phone ?? "", role: p.role as Role, created_at: p.created_at,
-    email: email.get(p.id) ?? "", brokerId: p.broker_id ?? null,
-  }));
+  const capMap = new Map((caps.data ?? []).map((c) => [c.user_id, c]));
+
+  let allRows: AdminUser[] = (profiles ?? []).map((p) => {
+    const c = capMap.get(p.id);
+    return {
+      id: p.id, name: p.full_name ?? "", phone: p.phone ?? "", role: p.role as Role,
+      created_at: p.created_at, email: email.get(p.id) ?? "",
+      brokerId: p.broker_id ?? null,
+      suspended_at: p.suspended_at ?? null, deleted_at: p.deleted_at ?? null,
+      can_buy: c?.can_buy ?? true, can_sell: c?.can_sell ?? false, is_broker_staff: c?.is_broker_staff ?? false,
+    };
+  });
+
+  if (usesCapabilityFilter) {
+    const cap = opts.capability!;
+    allRows = allRows.filter((r) => r[cap]);
+    const total = allRows.length;
+    const from = (page - 1) * perPage;
+    return { rows: allRows.slice(from, from + perPage), total };
+  }
+
+  return { rows: allRows, total: count ?? 0 };
+}
+
+export async function adminUsers(): Promise<AdminUser[]> {
+  const { rows } = await searchUsers({ perPage: 200 });
+  return rows;
+}
+
+export type UserDetail = AdminUser & {
+  capabilities: { can_buy: boolean; can_sell: boolean; is_broker_staff: boolean; broker_id: string | null };
+  brokerName: string | null;
+  listingCount: number;
+  activeListingCount: number;
+  recentAudit: { id: string; action: string; admin_id: string | null; adminName: string; created_at: string; details: Record<string, unknown> | null }[];
+};
+
+export async function getUserDetail(userId: string): Promise<UserDetail | null> {
+  if (!(await isDbReady())) return null;
+  const svc = createServiceClient();
+
+  const [{ data: p }, authRes, { data: cap }, { data: listings }, { data: auditRows }] = await Promise.all([
+    svc.from("profiles").select("id,full_name,phone,role,created_at,broker_id,suspended_at,deleted_at").eq("id", userId).maybeSingle(),
+    svc.auth.admin.getUserById(userId),
+    svc.from("account_capabilities").select("can_buy,can_sell,is_broker_staff,broker_id").eq("user_id", userId).maybeSingle(),
+    svc.from("properties").select("status").eq("owner_id", userId),
+    svc.from("admin_audit_log").select("id,action,admin_id,created_at,details").eq("target_id", userId).order("created_at", { ascending: false }).limit(10),
+  ]);
+
+  if (!p) return null;
+
+  const brokerName = p.broker_id
+    ? (await svc.from("broker_profiles").select("name").eq("id", p.broker_id).maybeSingle()).data?.name ?? null
+    : null;
+
+  const adminIds = [...new Set((auditRows ?? []).map((r) => r.admin_id).filter(Boolean) as string[])];
+  const adminNames = new Map<string, string>();
+  if (adminIds.length) {
+    const { data: admins } = await svc.from("profiles").select("id,full_name").in("id", adminIds);
+    for (const a of admins ?? []) adminNames.set(a.id, a.full_name ?? "Admin");
+  }
+
+  const caps = { can_buy: cap?.can_buy ?? true, can_sell: cap?.can_sell ?? false, is_broker_staff: cap?.is_broker_staff ?? false, broker_id: cap?.broker_id ?? null };
+  const allListings = listings ?? [];
+
+  return {
+    id: p.id, name: p.full_name ?? "", phone: p.phone ?? "", role: p.role as Role,
+    created_at: p.created_at, email: authRes.data?.user?.email ?? "",
+    brokerId: p.broker_id ?? null, suspended_at: p.suspended_at ?? null, deleted_at: p.deleted_at ?? null,
+    can_buy: caps.can_buy, can_sell: caps.can_sell, is_broker_staff: caps.is_broker_staff,
+    capabilities: caps,
+    brokerName,
+    listingCount: allListings.length,
+    activeListingCount: allListings.filter((l) => l.status === "live").length,
+    recentAudit: (auditRows ?? []).map((r) => ({
+      id: r.id, action: r.action, admin_id: r.admin_id,
+      adminName: r.admin_id ? (adminNames.get(r.admin_id) ?? r.admin_id.slice(0, 8)) : "System",
+      created_at: r.created_at,
+      details: r.details as Record<string, unknown> | null,
+    })),
+  };
+}
+
+export type SuspendImpact = { activeListings: number; pendingEnquiries: number };
+
+export async function getSuspendImpact(userId: string): Promise<SuspendImpact> {
+  if (!(await isDbReady())) return { activeListings: 0, pendingEnquiries: 0 };
+  const svc = createServiceClient();
+  // Count live listings this person owns
+  const { count: activeListings } = await svc
+    .from("properties")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_id", userId)
+    .eq("status", "live");
+  // Count open enquiries on this person's listings (enquiries.buyer_id is the enquirer;
+  // to find enquiries on their listings we join via property_id)
+  const { data: userListings } = await svc
+    .from("properties")
+    .select("id")
+    .eq("owner_id", userId)
+    .eq("status", "live");
+  const listingIds = (userListings ?? []).map((l) => l.id);
+  let pendingEnquiries = 0;
+  if (listingIds.length > 0) {
+    const { count } = await svc
+      .from("enquiries")
+      .select("id", { count: "exact", head: true })
+      .in("property_id", listingIds)
+      .eq("status", "open");
+    pendingEnquiries = count ?? 0;
+  }
+  return { activeListings: activeListings ?? 0, pendingEnquiries };
+}
+
+export async function suspendUser(adminId: string, userId: string, reason: string): Promise<void> {
+  const svc = createServiceClient();
+  const { error } = await svc.from("profiles").update({ suspended_at: new Date().toISOString() }).eq("id", userId);
+  if (error) throw new Error(error.message);
+  // Revoke all active Supabase sessions for this user immediately.
+  // This invalidates the refresh token so the JWT cannot be renewed after expiry.
+  // The user will be blocked on their next protected-route navigation (within JWT TTL).
+  await svc.auth.admin.signOut(userId, "global").catch(() => { /* non-fatal */ });
+  await logAdminAction(adminId, "suspend_user", "user", userId, { reason });
+}
+
+export async function reactivateUser(adminId: string, userId: string): Promise<void> {
+  const svc = createServiceClient();
+  const { error } = await svc.from("profiles").update({ suspended_at: null }).eq("id", userId);
+  if (error) throw new Error(error.message);
+  await logAdminAction(adminId, "reactivate_user", "user", userId, {});
+}
+
+export type CapabilityKey = "can_buy" | "can_sell" | "is_broker_staff";
+
+export async function updateUserCapability(
+  adminId: string,
+  userId: string,
+  capability: CapabilityKey,
+  value: boolean,
+  opts: { brokerId?: string; reason?: string } = {},
+): Promise<void> {
+  const svc = createServiceClient();
+
+  const { data: cur } = await svc.from("account_capabilities").select("can_buy,can_sell,is_broker_staff,broker_id").eq("user_id", userId).maybeSingle();
+
+  const next = {
+    can_buy: cur?.can_buy ?? true,
+    can_sell: cur?.can_sell ?? false,
+    is_broker_staff: cur?.is_broker_staff ?? false,
+    broker_id: cur?.broker_id ?? null,
+  };
+
+  next[capability] = value;
+
+  // Constraint: broker staff must have can_buy=true
+  if (next.is_broker_staff && !next.can_buy) {
+    throw new Error("Cannot revoke can_buy while is_broker_staff is active. Remove broker staff first.");
+  }
+  // Constraint: broker staff requires a broker_id
+  if (next.is_broker_staff && !opts.brokerId && !next.broker_id) {
+    throw new Error("Broker staff requires a broker ID.");
+  }
+  if (capability === "is_broker_staff" && value && opts.brokerId) {
+    next.broker_id = opts.brokerId;
+  }
+  if (capability === "is_broker_staff" && !value) {
+    next.broker_id = null;
+    // Also clear profiles.broker_id
+    await svc.from("profiles").update({ broker_id: null }).eq("id", userId);
+  }
+
+  const { error } = await svc.from("account_capabilities")
+    .upsert({ user_id: userId, ...next, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  if (error) throw new Error(error.message);
+
+  // Keep profiles.broker_id in sync when assigning broker staff
+  if (capability === "is_broker_staff" && value && opts.brokerId) {
+    await svc.from("profiles").update({ broker_id: opts.brokerId }).eq("id", userId);
+  }
+
+  await logAdminAction(adminId, value ? "grant_capability" : "revoke_capability", "capability", userId, {
+    capability, value, brokerId: opts.brokerId, reason: opts.reason,
+  });
 }
 
 /** brokerId assigns/moves the person to a client (only meaningful for role 'broker'); pass null to detach. */

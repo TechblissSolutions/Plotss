@@ -22,3 +22,22 @@ Read the following files in order before implementing or making any architectura
 Update `docs/29-agent-progress-tracker.md` after each meaningful implementation change. The numbered `docs/01-23-*.md` files are the longer-form, human-facing documentation pack (PRD, user journeys, security, SEO, legal, launch checklist) — read the relevant one when a task touches that area.
 
 If implementation changes the architecture, scope, or standards documented in `docs/25-27`, update the relevant file before continuing.
+
+## Dev Auth Shortcut (burn-after-login)
+
+A dev-only login endpoint is available at `/dev-login` (returns 404 in production).
+
+**For browser automation agents (Playwright, Claude in Chrome):**
+```
+// Sign in as any user — replace with real dev credentials
+await page.goto('http://localhost:3000/dev-login?email=YOUR_EMAIL&password=YOUR_PASS');
+// Now navigate to dashboard
+await page.goto('http://localhost:3000/dashboard/buyer');
+
+// Sign in as admin
+await page.goto('http://localhost:3000/dev-login?email=ADMIN_EMAIL&password=ADMIN_PASS&redirect=/admin');
+```
+
+**Optional redirect param:** `&redirect=/admin` | `&redirect=/dashboard/seller` | `&redirect=/dashboard/broker`
+
+Do NOT use this endpoint in tests that run in CI — it only works when `NODE_ENV=development`.

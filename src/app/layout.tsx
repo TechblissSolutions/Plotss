@@ -22,6 +22,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en" className="antialiased">
       <head>
+        {/* Mobile-native: notch-safe viewport + theme-color per scheme */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8fafc" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
+        <meta name="color-scheme" content="light" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href={fontsHref(theme)} />

@@ -52,3 +52,9 @@ export async function getAllPostsAdmin(): Promise<Post[]> {
   const { data } = await createServiceClient().from("blog_posts").select("*").order("created_at", { ascending: false });
   return (data ?? []).map(map);
 }
+
+export async function getPostById(id: string): Promise<Post | null> {
+  if (!(await isDbReady())) return null;
+  const { data } = await createServiceClient().from("blog_posts").select("*").eq("id", id).maybeSingle();
+  return data ? map(data) : null;
+}

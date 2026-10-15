@@ -27,14 +27,26 @@ export async function decideListing(f: FormData) {
     const actionName = status === "live" ? "approve_listing" : status === "rejected" ? "reject_listing" : `set_listing_${status}`;
     await logAdminAction(session.id, actionName, "listing", listingId, { status, note: s(f, "note", 500) || undefined });
   }
-  bust(); revalidatePath("/admin/listings");
+  bust();
+  revalidatePath("/admin/listings");
+  revalidatePath("/admin/verification");
 }
 export async function decideDocument(f: FormData) {
   await requireAdmin();
   const status = s(f, "status");
-  if (!["verified", "rejected", "pending"].includes(status)) return;
-  await setDocumentStatus(s(f, "id", 64), status as "verified", s(f, "ref", 120));
-  bust(); revalidatePath("/admin/listings");
+  if (!["verified", "rejected", "pending", "action_required"].includes(status)) return;
+  const docId = s(f, "id", 64);
+  await setDocumentStatus(docId, status as "verified", s(f, "ref", 120));
+  const session = await getSession();
+  if (session) {
+    await logAdminAction(session.id, `doc_${status}`, "verification_document", docId, {
+      status,
+      ref: s(f, "ref", 120) || undefined,
+    });
+  }
+  bust();
+  revalidatePath("/admin/listings");
+  revalidatePath("/admin/verification");
 }
 
 /* ---------- users ---------- */
@@ -169,6 +181,110 @@ export async function deleteBlog(f: FormData) {
   await requireAdmin();
   await createServiceClient().from("blog_posts").delete().eq("id", s(f, "id", 64));
   bust(); revalidatePath("/admin/blog");
+}
+
+export async function publishBlog(f: FormData) {
+  await requireAdmin();
+  const id = s(f, "id", 64);
+  await createServiceClient().from("blog_posts").update({ status: "published", published_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", id);
+  bust(); revalidatePath("/admin/blog"); revalidatePath("/blog");
+}
+
+export async function unpublishBlog(f: FormData) {
+  await requireAdmin();
+  const id = s(f, "id", 64);
+  await createServiceClient().from("blog_posts").update({ status: "draft", updated_at: new Date().toISOString() }).eq("id", id);
+  bust(); revalidatePath("/admin/blog"); revalidatePath("/blog");
+}
+
+export async function duplicateBlog(f: FormData) {
+  await requireAdmin();
+  const id = s(f, "id", 64);
+  const svc = createServiceClient();
+  const { data } = await svc.from("blog_posts").select("*").eq("id", id).maybeSingle();
+  if (!data) return;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: _id, created_at: _ca, updated_at: _ua, published_at: _pa, ...rest } = data;
+  await svc.from("blog_posts").insert({
+    ...rest,
+    slug: `${rest.slug}-copy-${Date.now().toString(36)}`,
+    title: `${rest.title} (Copy)`,
+    status: "draft",
+    published_at: null,
+    updated_at: new Date().toISOString(),
+  });
+  bust(); revalidatePath("/admin/blog");
+}
+
+export type ImportResult = { imported: number; skipped: number; errors: string[] };
+
+export async function importBlogPosts(posts: unknown[]): Promise<ImportResult> {
+  await requireAdmin();
+  const result: ImportResult = { imported: 0, skipped: 0, errors: [] };
+  const svc = createServiceClient();
+  const { data: existing } = await svc.from("blog_posts").select("slug");
+  const existingSlugs = new Set((existing ?? []).map((r: { slug: string }) => r.slug));
+
+  for (let i = 0; i < posts.length; i++) {
+    const p = posts[i] as Record<string, unknown>;
+    const label = `Post ${i + 1}${p.slug ? ` (${p.slug})` : ""}`;
+    if (!p.title || typeof p.title !== "string") { result.errors.push(`${label}: missing title`); continue; }
+    if (!p.body || typeof p.body !== "string") { result.errors.push(`${label}: missing body`); continue; }
+    const slug = (typeof p.slug === "string" && p.slug) ? slugify(p.slug) : slugify(String(p.title));
+    if (existingSlugs.has(slug)) { result.skipped++; result.errors.push(`${label}: slug "${slug}" already exists — skipped`); continue; }
+    const row = {
+      slug, title: String(p.title).slice(0, 200),
+      excerpt: typeof p.excerpt === "string" ? p.excerpt.slice(0, 400) : "",
+      body: String(p.body).slice(0, 60000),
+      cover_image: typeof p.cover_image === "string" && p.cover_image ? p.cover_image.slice(0, 500) : null,
+      tags: Array.isArray(p.tags) ? p.tags.map(String).slice(0, 8) : [],
+      author: typeof p.author === "string" && p.author ? p.author.slice(0, 80) : "PLOTSS Editorial",
+      author_role: typeof p.author_role === "string" ? p.author_role.slice(0, 120) : null,
+      author_bio: typeof p.author_bio === "string" ? p.author_bio.slice(0, 300) : null,
+      key_takeaways: Array.isArray(p.key_takeaways) ? p.key_takeaways.map(String).slice(0, 8) : [],
+      faq: Array.isArray(p.faq) ? p.faq.filter((f: unknown) => f && typeof f === "object" && "q" in (f as object) && "a" in (f as object)).slice(0, 20) : [],
+      seo_title: typeof p.seo_title === "string" ? p.seo_title.slice(0, 120) : null,
+      seo_description: typeof p.seo_description === "string" ? p.seo_description.slice(0, 320) : null,
+      status: "draft" as const,
+      published_at: null,
+      updated_at: new Date().toISOString(),
+    };
+    const { error } = await svc.from("blog_posts").insert(row);
+    if (error) { result.errors.push(`${label}: ${error.message}`); } else { result.imported++; existingSlugs.add(slug); }
+  }
+  bust(); revalidatePath("/admin/blog"); revalidatePath("/blog");
+  return result;
+}
+
+/* ---------- blog image upload (WebP) ---------- */
+/* Images are always converted to WebP, resized to max 1920px wide, and clamped to 50–400 KB. */
+export async function uploadBlogImage(f: FormData): Promise<{ url: string }> {
+  await requireAdmin();
+  const file = f.get("file") as File | null;
+  if (!file || !file.size) throw new Error("No file provided");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Max upload size is 8 MB");
+
+  const sharp = (await import("sharp")).default;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Convert to WebP, cap to 1920px wide, quality 82
+  const webpBuf = await sharp(buffer)
+    .rotate()                         // honour EXIF orientation
+    .resize({ width: 1920, withoutEnlargement: true })
+    .webp({ quality: 82, effort: 4 })
+    .toBuffer();
+
+  // Enforce 50 KB – 400 KB output
+  const kb = webpBuf.byteLength / 1024;
+  if (kb < 5) throw new Error("Image too small after conversion (< 5 KB)");
+  if (kb > 500) throw new Error("Image too large after conversion (> 500 KB). Use a smaller source image.");
+
+  const svc = createServiceClient();
+  const name = `blog/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+  const { error } = await svc.storage.from("media").upload(name, webpBuf, { contentType: "image/webp", upsert: false });
+  if (error) throw new Error(error.message);
+  const { data } = svc.storage.from("media").getPublicUrl(name);
+  return { url: data.publicUrl };
 }
 
 /* ---------- redirects ---------- */

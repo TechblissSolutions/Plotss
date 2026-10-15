@@ -35,7 +35,7 @@ export async function getSession(): Promise<Session | null> {
   if (!user) return null;
   const { data: p } = await supabase
     .from("profiles")
-    .select("full_name, phone, role, broker_id, deleted_at, onboarded_at")
+    .select("full_name, phone, role, broker_id, deleted_at, suspended_at, onboarded_at")
     .eq("id", user.id)
     .single();
 
@@ -43,6 +43,12 @@ export async function getSession(): Promise<Session | null> {
   if (p?.deleted_at) {
     await supabase.auth.signOut();
     redirect("/login?error=account_deleted");
+  }
+
+  // Suspension: sign out suspended accounts
+  if (p?.suspended_at) {
+    await supabase.auth.signOut();
+    redirect("/login?error=account_suspended");
   }
 
   const { data: cap } = await supabase

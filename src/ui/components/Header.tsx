@@ -1,6 +1,7 @@
 'use client';
 import { T } from '../content';
 import { useData } from '../data/DataProvider';
+import { ShaderBackground } from '@/components/ShaderBackground';
 import Link from 'next/link';
 import React from 'react';
 import { ScreenId, UserRole } from '../types';
@@ -64,8 +65,9 @@ export const Header: React.FC<HeaderProps> = ({
     <>
 
       {/* Main Brand Header */}
-      <header className="sticky top-0 z-40 bg-ivory border-b border-line transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-ivory border-b border-line relative overflow-hidden">
+        <ShaderBackground opacity={0.04} className="absolute inset-0 w-full h-full" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
           {/* Logo & Brand System */}
           <div className="flex items-center gap-3">
