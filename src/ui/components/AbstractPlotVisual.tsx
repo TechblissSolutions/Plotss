@@ -224,7 +224,7 @@ export const AbstractPlotVisual: React.FC<AbstractPlotVisualProps> = ({
             src={realImageUrl}
             alt={`${areaDisplay} land plot`}
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-200 ease-out group-hover:scale-105"
           />
 
           {/* Gradient readability scrim */}
@@ -261,9 +261,9 @@ export const AbstractPlotVisual: React.FC<AbstractPlotVisualProps> = ({
             }}
           />
 
-          <svg 
-            viewBox="0 0 320 200" 
-            className="w-full h-full p-2 transition-transform duration-500 ease-out group-hover:scale-105"
+          <svg
+            viewBox="0 0 320 200"
+            className="w-full h-full p-2 transition-transform duration-200 ease-out group-hover:scale-105"
           >
             <defs>
               <linearGradient id={`grad-${geometryType}`} x1="0%" y1="0%" x2="100%" y2="100%">

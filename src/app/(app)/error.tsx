@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AppError({
   error,
@@ -14,11 +15,20 @@ export default function AppError({
     console.error("[app error]", error);
   }, [error]);
 
+  const pathname = usePathname();
+  const heading = pathname.startsWith("/dashboard")
+    ? "Could not load your dashboard"
+    : pathname.startsWith("/settings")
+    ? "Could not load your settings"
+    : pathname.startsWith("/onboarding")
+    ? "Could not complete onboarding"
+    : "Something went wrong";
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="rounded-2xl border border-line bg-white p-10 text-center shadow-sm">
         <h1 className="font-serif-headline text-2xl font-bold text-graphite">
-          Could not load your dashboard
+          {heading}
         </h1>
         <p className="mx-auto mt-3 max-w-sm text-sm text-stone">
           There was a problem loading your data. This is usually temporary — try refreshing the page.

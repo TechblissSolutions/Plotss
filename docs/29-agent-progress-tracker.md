@@ -2,7 +2,7 @@
 
 **Update this file every session.** It must reflect actual implementation state, not intended state.
 
-_Last updated: 2026-10-17 (Baseline audit + safe improvements: 2 bugs fixed, 6 new files added — tsc clean)_
+_Last updated: 2026-10-17 (Phase 6 performance/accessibility/quality pass — 11 files changed, tsc clean)_
 
 Additions this pass: homepage hero rebuilt with a real photo + floating trust cards + parallax/float animation (replacing the abstract SVG plot graphic on the right, which read as an empty placeholder) and scroll-reveal fade-ups added to several homepage section headers via `framer-motion` (already a dependency, previously unused anywhere in the codebase). Corrected [26 UI context](26-agent-ui-context.md), which still documented the old warm-terracotta palette — it was never updated after the Professional Blue + Amber switch. Fixed a nested-`<a>` hydration error on `/city/[slug]` and `/category/[slug]` (`ListingGrid.tsx`) — real bug, not caused by this session's changes, surfaced by testing on Vercel. India map section now shows honest "Coming soon" pins for 7 planned-expansion cities alongside the 3 real launch cities, after the user asked for a fuller national-coverage look matching a reference site that showed 8 cities (the reference's platform is not NCR-only; ours is, so fabricating active listing counts for cities with zero inventory wasn't an option — asked the user, who chose the honest "Coming soon" labeling over fake data). Then the user reported the map itself rendering broken/cropped — rewrote `IndiaMap.tsx` to drop `react-simple-maps`/GeoJSON entirely in favor of a static SVG path + percentage-positioned pins (see Completed below).
 
@@ -13,6 +13,16 @@ Multi-client (agency) system: backend built and verified against the live databa
 ## Current goal
 
 Get the multi-client model from "backend works, zero real clients onboarded" to "launchable": notifications on listing decisions, a real verification SLA, and a decision on unifying the two buyer-facing UI systems.
+
+## Completed (2026-10-17 — Phase 6 performance/accessibility/quality pass)
+
+- **next/image migration (LCP + lazy)**: Added `images.remotePatterns` for `*.supabase.co` to `next.config.ts`. Replaced bare `<img>` with `next/image` + `priority` in `HeroVisual.tsx` (hero LCP) and `PropertyDetailScreen.tsx` (main gallery photo). Replaced lazy `<img>` in `ListingGrid.tsx` (listing cards, `sizes` set for 3-col grid) and `blog/page.tsx` (blog covers). `sharp` was already installed so Next.js image optimization is active.
+- **Accessibility: div/article onClick removed**: City cards in `HomeScreen.tsx` changed from `<div onClick>` to `<button type="button">`. Blog preview cards changed from `<article onClick={window.location.href=...}>` to `<Link href={...}>`, eliminating a full-page navigation reload and making the cards keyboard- and screen-reader-accessible.
+- **Transition fix (`transition-all` removed)**: `PropertyDetailScreen.tsx` thumbnail buttons changed to `transition-[border-color,opacity,transform]`. `BrokerProfileScreen.tsx` listing cards changed to `transition-[border-color,box-shadow]`.
+- **Hover zoom speed**: `AbstractPlotVisual.tsx` image and SVG hover scale changed from `duration-500` to `duration-200`. `ListingGrid.tsx` image hover scale also changed to `duration-200`.
+- **Hardcoded past date fixed**: `PropertyDetailScreen.tsx` default `siteVisitDate` state changed from the hardcoded string `'2026-09-24'` to `() => new Date(Date.now() + 7 * 24 * 3600_000).toISOString().slice(0, 10)` (always 7 days from now).
+- **Listing detail loading skeleton**: Created `src/app/(site)/listing/[slug]/loading.tsx` — matches the actual page layout (breadcrumb strip, hero image area, key-facts strip, 2-column body with detail panels and contact/form sidebar).
+- **Error boundary improvements**: `(app)/error.tsx` now uses `usePathname()` to show context-appropriate headings ("Could not load your dashboard" / "settings" / "onboarding" / "Something went wrong" fallback). `admin/error.tsx` now has a "Back to admin" `<Link href="/admin">` button so admins can recover without typing the URL.
 
 ## Completed (2026-10-17 — baseline audit + safe improvements)
 

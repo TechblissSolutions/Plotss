@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
 import { Listing, ScreenId } from '../types';
 import { useData } from '../data/DataProvider';
 import { AbstractPlotVisual } from '../components/AbstractPlotVisual';
@@ -88,7 +89,7 @@ export const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
   const [enquiryCompany, setEnquiryCompany] = useState('');
   const [enquiryPhone, setEnquiryPhone] = useState('');
   const [enquiryMessage, setEnquiryMessage] = useState('Interested in scheduling a site visit and reviewing the ownership and land documents.');
-  const [siteVisitDate, setSiteVisitDate] = useState('2026-09-24');
+  const [siteVisitDate, setSiteVisitDate] = useState(() => new Date(Date.now() + 7 * 24 * 3600_000).toISOString().slice(0, 10));
   const [siteVisitSlot, setSiteVisitSlot] = useState<'Morning (10 AM - 1 PM)' | 'Afternoon (2 PM - 5 PM)'>('Morning (10 AM - 1 PM)');
   const [enquirySubmitted, setEnquirySubmitted] = useState(false);
 
@@ -300,11 +301,13 @@ Phone: ${enquiryPhone}` : ''}`;
             <div className="relative bg-[var(--c-graphite)]">
               {/* Main Photo Container */}
               <div className="relative w-full h-[400px] sm:h-[500px] lg:h-[560px] overflow-hidden flex items-center justify-center">
-                <img
+                <Image
                   src={galleryList[activePhotoIndex]}
                   alt={`${listing.title} - drone view ${activePhotoIndex + 1}`}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover select-none"
+                  fill
+                  priority
+                  sizes="(max-width: 1280px) 100vw, 1280px"
+                  className="object-cover select-none"
                 />
 
                 {/* Scrim Overlay */}
@@ -379,17 +382,18 @@ Phone: ${enquiryPhone}` : ''}`;
                     <button
                       key={idx}
                       onClick={() => setActivePhotoIndex(idx)}
-                      className={`relative w-20 sm:w-24 aspect-[16/10] rounded-[3px] overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
+                      className={`relative w-20 sm:w-24 aspect-[16/10] rounded-[3px] overflow-hidden border-2 transition-[border-color,opacity,transform] shrink-0 cursor-pointer ${
                         activePhotoIndex === idx
                           ? 'border-clay scale-105 shadow-md'
                           : 'border-transparent opacity-60 hover:opacity-100'
                       }`}
                     >
-                      <img
+                      <Image
                         src={img}
                         alt={`Thumbnail ${idx + 1}`}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="96px"
+                        className="object-cover"
                       />
                       <span className="absolute bottom-0.5 right-1 text-[11px] text-white font-bold bg-graphite/80 px-1 rounded">
                         #{idx + 1}

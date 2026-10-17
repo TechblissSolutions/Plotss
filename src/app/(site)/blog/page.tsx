@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { getPublishedPosts, type Post } from "@/lib/db/blog";
 import { buildMetadata } from "@/lib/seo";
@@ -21,8 +22,16 @@ function Card({ p, big = false }: { p: Post; big?: boolean }) {
   return (
     <Link href={`/blog/${p.slug}`} className={`group flex overflow-hidden rounded-md border border-line bg-white transition-colors hover:border-clay ${big ? "flex-col md:col-span-2 md:flex-row" : "flex-col"}`}>
       {p.cover ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={p.cover} alt="" loading={big ? "eager" : "lazy"} className={`w-full object-cover ${big ? "aspect-[16/9] md:aspect-auto md:w-1/2" : "aspect-[16/9]"}`} />
+        <div className={`relative overflow-hidden ${big ? "aspect-[16/9] md:aspect-auto md:w-1/2 md:self-stretch" : "aspect-[16/9]"}`}>
+          <Image
+            src={p.cover}
+            alt=""
+            fill
+            loading={big ? "eager" : "lazy"}
+            sizes={big ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"}
+            className="object-cover"
+          />
+        </div>
       ) : (
         <div className={`bg-sand grid place-items-center text-4xl ${big ? "aspect-[16/9] md:w-1/2" : "aspect-[16/9]"}`} aria-hidden>📰</div>
       )}

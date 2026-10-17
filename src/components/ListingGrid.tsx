@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heart, Map as MapIcon, ShieldCheck } from "lucide-react";
@@ -68,8 +69,15 @@ export function ListingGrid({ listings }: { listings: Listing[] }) {
             >
               <div className="relative">
                 {l.realImageUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={l.realImageUrl} alt={l.title} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="relative aspect-[16/10]">
+                    <Image
+                      src={l.realImageUrl}
+                      alt={l.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                  </div>
                 )}
                 {(l.verified || l.aiScreened) && (
                   <div className="absolute left-2 top-2 flex items-center gap-1 rounded-[3px] border border-ink-2 paint-moss px-2 py-0.5 text-[11px] font-semibold text-ivory font-tabular shadow-sm">

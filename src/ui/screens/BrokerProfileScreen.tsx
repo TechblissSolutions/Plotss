@@ -176,7 +176,7 @@ export const BrokerProfileScreen: React.FC<BrokerProfileScreenProps> = ({
               <div
                 key={plot.id}
                 onClick={() => onSelectListing(plot.slug)}
-                className="group bg-white rounded-sm border border-line hover:border-graphite transition-all overflow-hidden flex flex-col cursor-pointer shadow-xs hover:shadow-md"
+                className="group bg-white rounded-sm border border-line hover:border-graphite transition-[border-color,box-shadow] overflow-hidden flex flex-col cursor-pointer shadow-xs hover:shadow-md"
               >
                 <div className="relative">
                   <AbstractPlotVisual

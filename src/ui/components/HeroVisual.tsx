@@ -1,6 +1,7 @@
 'use client';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ShieldCheck, TrendingUp } from 'lucide-react';
+import Image from 'next/image';
 import React, { useRef } from 'react';
 
 /**
@@ -22,11 +23,13 @@ export const HeroVisual: React.FC<{ verifiedCount: number; avgPrice: string }> =
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="relative ml-auto aspect-[4/5] w-[88%] max-w-md overflow-hidden rounded-lg shadow-card sm:aspect-[5/6]"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/listings/plotted-aerial.jpg"
           alt="Aerial view of a plotted land development in the NCR region"
-          className="h-full w-full object-cover"
+          fill
+          priority
+          sizes="(min-width: 1024px) min(88vw, 448px)"
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-graphite/40 via-transparent to-transparent" />
       </motion.div>

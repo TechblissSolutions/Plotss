@@ -702,10 +702,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {cities.map((city) => (
-            <div
+            <button
+              type="button"
               key={city.name}
               onClick={() => onSearchQuerySubmit(city.name, 'Buy')}
-              className="bg-white rounded-sm border border-line p-4 hover:border-graphite transition-[border-color,box-shadow,transform] duration-200 cursor-pointer group shadow-xs hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]"
+              className="w-full text-left bg-white rounded-sm border border-line p-4 hover:border-graphite transition-[border-color,box-shadow,transform] duration-200 cursor-pointer group shadow-xs hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]"
               style={{ transitionTimingFunction: 'cubic-bezier(0.23,1,0.32,1)' }}
             >
               <div className="flex items-center justify-between">
@@ -725,7 +726,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <div className="mt-3 pt-2 border-t border-line text-[11px] text-stone truncate">
                 Hubs: {city.popularHubs.slice(0, 2).join(', ')}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -1057,11 +1058,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </svg>,
             ];
             return (
-            <article
+            <Link
               key={post.id}
-              className="bg-white rounded-sm border border-line hover:border-graphite transition-[border-color,box-shadow,transform] duration-200 flex flex-col justify-between group shadow-xs hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] cursor-pointer overflow-hidden"
+              href={`/blog/${post.slug}`}
+              className="bg-white rounded-sm border border-line hover:border-graphite transition-[border-color,box-shadow,transform] duration-200 flex flex-col justify-between group shadow-xs hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] overflow-hidden"
               style={{ transitionTimingFunction: 'cubic-bezier(0.23,1,0.32,1)' }}
-              onClick={() => { window.location.href = `/blog/${post.slug}`; }}
             >
               {/* Article visual header band */}
               <div className="relative h-[110px] overflow-hidden shrink-0">
@@ -1094,7 +1095,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </span>
                 </div>
               </div>
-            </article>
+            </Link>
             );
           })}
         </div>
