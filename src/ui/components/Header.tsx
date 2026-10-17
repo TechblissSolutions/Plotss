@@ -172,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <User className="w-3.5 h-3.5 text-signal" />
                     <span>My dashboard</span>
                     {userRole === 'buyer' && savedCount > 0 && (
-                      <span className="paint-clay text-[11px] font-bold px-1.5 py-0.2 rounded-full font-tabular">{savedCount}</span>
+                      <span className="paint-clay text-[11px] font-bold px-1.5 py-0.5 rounded-full font-tabular">{savedCount}</span>
                     )}
                   </button>
                 )}

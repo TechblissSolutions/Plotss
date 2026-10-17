@@ -2,7 +2,7 @@
 
 **Update this file every session.** It must reflect actual implementation state, not intended state.
 
-_Last updated: 2026-10-14 (Phase 5.1: verification gate — 4 bugs fixed, 22/22 tests pass, tsc+lint+build clean)_
+_Last updated: 2026-10-17 (Baseline audit + safe improvements: 2 bugs fixed, 6 new files added — tsc clean)_
 
 Additions this pass: homepage hero rebuilt with a real photo + floating trust cards + parallax/float animation (replacing the abstract SVG plot graphic on the right, which read as an empty placeholder) and scroll-reveal fade-ups added to several homepage section headers via `framer-motion` (already a dependency, previously unused anywhere in the codebase). Corrected [26 UI context](26-agent-ui-context.md), which still documented the old warm-terracotta palette — it was never updated after the Professional Blue + Amber switch. Fixed a nested-`<a>` hydration error on `/city/[slug]` and `/category/[slug]` (`ListingGrid.tsx`) — real bug, not caused by this session's changes, surfaced by testing on Vercel. India map section now shows honest "Coming soon" pins for 7 planned-expansion cities alongside the 3 real launch cities, after the user asked for a fuller national-coverage look matching a reference site that showed 8 cities (the reference's platform is not NCR-only; ours is, so fabricating active listing counts for cities with zero inventory wasn't an option — asked the user, who chose the honest "Coming soon" labeling over fake data). Then the user reported the map itself rendering broken/cropped — rewrote `IndiaMap.tsx` to drop `react-simple-maps`/GeoJSON entirely in favor of a static SVG path + percentage-positioned pins (see Completed below).
 
@@ -13,6 +13,13 @@ Multi-client (agency) system: backend built and verified against the live databa
 ## Current goal
 
 Get the multi-client model from "backend works, zero real clients onboarded" to "launchable": notifications on listing decisions, a real verification SLA, and a decision on unifying the two buyer-facing UI systems.
+
+## Completed (2026-10-17 — baseline audit + safe improvements)
+
+- **`hover:text-primary` bug fixed in `Shell.tsx`**: all 6 nav link hover states used `hover:text-primary`, which is not a defined design token in this project's Tailwind config. The class was silently a no-op — hovering dashboard nav links showed no visual feedback. Fixed to `hover:text-graphite`, matching the convention in `(app)/layout.tsx`'s header links.
+- **Invalid Tailwind utility fixed in `Header.tsx`**: saved-count badge in the SPA header used `py-0.2`, not a valid Tailwind spacing step. Fixed to `py-0.5`.
+- **Error boundaries added**: zero `error.tsx` files existed before this session. Added `src/app/error.tsx` (root), `src/app/(app)/error.tsx` (dashboards/onboarding/settings), `src/app/(site)/error.tsx` (public pages), and `src/app/admin/error.tsx` (admin panel). Any server component that throws (DB failure, network timeout, etc.) now shows a user-friendly recovery UI rather than Next.js's bare error page.
+- **Loading skeletons added for missing routes**: `src/app/(app)/onboarding/loading.tsx` (onboarding card skeleton matching the page's actual card layout) and `src/app/(app)/settings/loading.tsx` (settings section skeleton). Previously both routes fell back to the generic spinner in `(app)/loading.tsx`.
 
 ## Completed
 

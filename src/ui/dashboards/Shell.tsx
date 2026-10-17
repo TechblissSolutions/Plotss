@@ -14,20 +14,20 @@ export function Shell({ title, sub, children, session }: ShellProps) {
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {session && (
         <nav className="mb-6 flex flex-wrap gap-3 text-sm">
-          <Link href="/search" className="text-stone hover:text-primary transition-colors">Browse listings</Link>
+          <Link href="/search" className="text-stone hover:text-graphite transition-colors">Browse listings</Link>
           {session.canBuy && (
-            <Link href="/dashboard/buyer" className="text-stone hover:text-primary transition-colors">Buyer dashboard</Link>
+            <Link href="/dashboard/buyer" className="text-stone hover:text-graphite transition-colors">Buyer dashboard</Link>
           )}
           {session.canSell && (
-            <Link href="/dashboard/seller" className="text-stone hover:text-primary transition-colors">Seller dashboard</Link>
+            <Link href="/dashboard/seller" className="text-stone hover:text-graphite transition-colors">Seller dashboard</Link>
           )}
           {session.isBrokerStaff && (
-            <Link href="/dashboard/broker" className="text-stone hover:text-primary transition-colors">Broker dashboard</Link>
+            <Link href="/dashboard/broker" className="text-stone hover:text-graphite transition-colors">Broker dashboard</Link>
           )}
           {session.isAdmin && (
-            <Link href="/admin/listings" className="text-stone hover:text-primary transition-colors">Admin panel</Link>
+            <Link href="/admin/listings" className="text-stone hover:text-graphite transition-colors">Admin panel</Link>
           )}
-          <Link href="/settings" className="text-stone hover:text-primary transition-colors">Settings</Link>
+          <Link href="/settings" className="text-stone hover:text-graphite transition-colors">Settings</Link>
         </nav>
       )}
       <h1 className="font-serif-headline text-3xl font-bold">{title}</h1>
