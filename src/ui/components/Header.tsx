@@ -201,6 +201,8 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-graphite hover:bg-line rounded-sm cursor-pointer"
               aria-label="Toggle Navigation Menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -209,7 +211,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-ivory border-b border-line px-4 pt-3 pb-5 space-y-3">
+          <div id="mobile-menu" className="md:hidden bg-ivory border-b border-line px-4 pt-3 pb-5 space-y-3">
             <div className="grid grid-cols-2 gap-2 text-xs font-medium">
               <button
                 onClick={() => { onNavigate('search'); setMobileMenuOpen(false); }}

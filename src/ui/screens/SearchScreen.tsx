@@ -28,6 +28,8 @@ import {
   Map as MapIcon
 } from 'lucide-react';
 
+type SortBy = 'match' | 'price_asc' | 'price_desc' | 'area_desc' | 'newest' | 'nearest';
+
 interface SearchScreenProps {
   initialQuery?: string;
   /** Server-side AI (or rule) parser for the natural-language box. */
@@ -69,7 +71,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   const [minAreaAcres, setMinAreaAcres] = useState<number>(0);
   const [selectedZone, setSelectedZone] = useState<string>('All');
   const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<'match' | 'price_asc' | 'price_desc' | 'area_desc' | 'newest' | 'nearest'>('match');
+  const [sortBy, setSortBy] = useState<SortBy>('match');
   const [origin, setOrigin] = useState<Origin | null>(null);
   const [radiusKm, setRadiusKm] = useState(0);
   const changeOrigin = (o: Origin | null) => { setOrigin(o); setSortBy(o ? 'nearest' : 'match'); };
@@ -462,7 +464,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                   <select
                     id="search-sort-select"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
+                    onChange={(e) => setSortBy(e.target.value as SortBy)}
                     className="bg-white text-xs font-semibold text-graphite border border-line rounded-sm px-2.5 py-1.5 focus:outline-none focus:border-graphite cursor-pointer"
                   >
                     {origin && <option value="nearest">Nearest first</option>}

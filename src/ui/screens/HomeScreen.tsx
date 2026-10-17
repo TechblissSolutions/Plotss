@@ -1,7 +1,7 @@
 'use client';
 import { T, Show } from '../content';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import React, { useState } from 'react';
 import { Listing, CityInfo, ScreenId } from '../types';
 import { useData } from '../data/DataProvider';
@@ -117,23 +117,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   }, [listings]);
 
   // Emil Kowalski animation variants — ease-out for entering, stagger children
+  const reduceMotion = useReducedMotion();
   const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
   const heroContainer = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
   };
-  const heroItem = {
-    hidden: { opacity: 0, y: 14, scale: 0.98 },
-    show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: EASE_OUT } },
-  };
+  const heroItem = reduceMotion
+    ? { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.3 } } }
+    : { hidden: { opacity: 0, y: 14, scale: 0.98 }, show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: EASE_OUT } } };
   const cardStagger = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.07 } },
   };
-  const cardItem = {
-    hidden: { opacity: 0, y: 18, scale: 0.97 },
-    show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: EASE_OUT } },
-  };
+  const cardItem = reduceMotion
+    ? { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.3 } } }
+    : { hidden: { opacity: 0, y: 18, scale: 0.97 }, show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: EASE_OUT } } };
 
   const sampleSearchPrompts = [
     '3 acre industrial land near Ghaziabad under 5Cr',

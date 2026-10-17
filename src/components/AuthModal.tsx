@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isSupabaseBrowserConfigured, supabaseBrowser } from "@/lib/supabase/client";
 import { useData } from "@/ui/data/DataProvider";
@@ -39,9 +39,17 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
   const [forgotMode, setForgotMode] = useState(false);
   const live = isSupabaseBrowserConfigured;
 
+  // Focus management refs — used only in popup (non-inline) mode.
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (inline) return; // the full-page version has no pop-up behaviour; the global pop-up handles Google returns
-    const on = () => { setOpen(true); setStep("choose"); setErr(""); track('auth_open'); };
+    const on = () => {
+      // Capture the element that triggered the modal so we can return focus when it closes.
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      setOpen(true); setStep("choose"); setErr(""); track('auth_open');
+    };
     window.addEventListener(OPEN_EVENT, on);
     // e.g. redirected from a protected page with /?login=1
     if (new URLSearchParams(location.search).get('login') === '1') on();
@@ -73,6 +81,19 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
     }
     return () => window.removeEventListener(OPEN_EVENT, on);
   }, []);
+
+  // Focus management: move focus into dialog on open, restore on close.
+  useEffect(() => {
+    if (open && !inline && dialogRef.current) {
+      const el = dialogRef.current.querySelector<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      el?.focus();
+    } else if (!open && previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [open, inline]);
 
   if (!open) return null;
 
@@ -178,10 +199,27 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
     ["Site-visit scheduling", "Book inspections without calling five brokers."],
   ];
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape" && !inline) setOpen(false);
+  };
+
   const shell = inline ? "" : "fixed inset-0 z-50 grid place-items-center bg-graphite/70 p-3";
   return (
-    <div className={shell} {...(inline ? {} : { role: "dialog", "aria-modal": true, onClick: () => setOpen(false) })}>
-      <div className={`grid w-full max-w-4xl overflow-hidden rounded-lg md:grid-cols-[1.05fr_1fr] ${inline ? "mx-auto border border-line bg-white shadow-sm" : "bg-ivory"}`} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={shell}
+      {...(inline ? {} : {
+        role: "dialog",
+        "aria-modal": true,
+        "aria-labelledby": "auth-dialog-title",
+        onClick: () => setOpen(false),
+      })}
+    >
+      <div
+        ref={dialogRef}
+        className={`grid w-full max-w-4xl overflow-hidden rounded-lg md:grid-cols-[1.05fr_1fr] ${inline ? "mx-auto border border-line bg-white shadow-sm" : "bg-ivory"}`}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
+      >
         <aside className="paint-graphite hidden flex-col justify-between p-8 text-ivory md:flex">
           <div>
             <div className="font-display text-2xl">PLOTSS</div>
@@ -202,7 +240,9 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
 
         <section className="relative p-6 sm:p-8">
           {!inline && <button aria-label="Close" onClick={() => setOpen(false)} className="absolute right-4 top-4 text-stone">✕</button>}
-          {inline ? <h1 className="pr-6 text-2xl">{headline}</h1> : <h4 className="pr-6 text-2xl">{headline}</h4>}
+          {inline
+            ? <h1 id="auth-dialog-title" className="pr-6 text-2xl">{headline}</h1>
+            : <h4 id="auth-dialog-title" className="pr-6 text-2xl">{headline}</h4>}
           <p className="mt-1 text-sm text-stone">
             {step === "role" ? "Pick one — you can change it later from your dashboard." : "One step. Your details are never shared without consent."}
           </p>

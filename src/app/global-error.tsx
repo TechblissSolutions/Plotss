@@ -7,10 +7,10 @@ import { useEffect } from "react";
 // Cannot rely on theme CSS injected by the root layout; uses fallback token values from globals.css.
 export default function GlobalError({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error("[global error]", error);
@@ -49,7 +49,7 @@ export default function GlobalError({
             <p className="ref">Ref: {error.digest}</p>
           )}
           <div className="actions">
-            <button className="btn-primary" onClick={reset}>
+            <button className="btn-primary" onClick={retry}>
               Try again
             </button>
             <a className="btn-secondary" href="/">
