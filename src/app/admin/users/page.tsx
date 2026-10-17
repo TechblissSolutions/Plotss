@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { searchUsers } from "@/lib/db/admin";
-import { Badge, btn, EmptyState, PageHeader } from "../ui";
+import { AdminPageHeader, Badge, btn, EmptyState } from "../ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "People & Accounts — Admin" };
@@ -49,7 +49,7 @@ export default async function PeopleAccountsPage({
 
   return (
     <main className="mx-auto max-w-5xl">
-      <PageHeader
+      <AdminPageHeader
         title="People & Accounts"
         subtitle={`${total} ${total === 1 ? "person" : "people"} — click a row to manage their account`}
       />

@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/service";
-import { PageHeader, Badge } from "../ui";
+import { AdminPageHeader, Badge } from "../ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Audit Logs — Admin" };
@@ -54,7 +54,7 @@ export default async function AuditLogsPage({
 
   return (
     <main className="mx-auto max-w-5xl">
-      <PageHeader
+      <AdminPageHeader
         title="Audit Logs"
         subtitle="Every admin action, who did it, and when. Read-only — nothing can be deleted."
       />

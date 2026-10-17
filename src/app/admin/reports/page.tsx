@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { listReports, reportCounts } from "@/lib/db/reports";
-import { PageHeader, Badge } from "../ui";
+import { AdminPageHeader, Badge } from "../ui";
 import type { ReportStatus, ReportCategory, ReportSeverity } from "@/lib/reports-machine";
 import { STATUS_LABELS, CATEGORY_LABELS, SEVERITY_LABELS } from "@/lib/reports-machine";
 import Link from "next/link";
@@ -58,7 +58,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
 
   return (
     <main className="mx-auto max-w-5xl">
-      <PageHeader
+      <AdminPageHeader
         title="Reports & Complaints"
         subtitle="User-submitted complaints about listings and accounts."
       />

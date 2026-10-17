@@ -203,3 +203,17 @@ a { text-underline-offset: 3px; }
   text-transform: uppercase;
   line-height: 1.4;
 }
+
+/* ─── Neumorphism utilities (admin panel) ───────────────────────────────────── */
+@utility neu-raised {
+  box-shadow: 6px 6px 12px #d1d9e6, -4px -4px 10px #ffffff;
+}
+@utility neu-inset {
+  box-shadow: inset 2px 2px 5px #d1d9e6, inset -2px -2px 5px #ffffff;
+}
+@utility neu-dark-raised {
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.3), -2px -2px 6px rgba(255,255,255,0.04);
+}
+@utility neu-dark-inset {
+  box-shadow: inset 2px 2px 6px rgba(0,0,0,0.35), inset -1px -1px 3px rgba(255,255,255,0.05);
+}

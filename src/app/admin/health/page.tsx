@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/auth";
 import { isDbReady } from "@/lib/db/listings";
 import { aiProviderName } from "@/lib/ai/llm";
-import { PageHeader, Card, Badge } from "../ui";
+import { AdminPageHeader, Card, Badge } from "../ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "System Health — Admin" };
@@ -50,7 +50,7 @@ export default async function SystemHealthPage() {
 
   return (
     <main className="mx-auto max-w-3xl">
-      <PageHeader
+      <AdminPageHeader
         title="System Health"
         subtitle="Live status of external services and critical integrations."
       />

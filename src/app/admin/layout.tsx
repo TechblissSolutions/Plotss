@@ -77,7 +77,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
           </div>
         </header>
-        <div id="admin-main" tabIndex={-1} className="p-5 outline-none sm:p-8">{children}</div>
+        <div id="admin-main" tabIndex={-1} className="px-6 py-6 outline-none sm:px-8 sm:py-8 max-w-[1400px] mx-auto">{children}</div>
       </div>
     </div>
   );

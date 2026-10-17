@@ -106,7 +106,7 @@ export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
             <button
               type="button"
               onClick={() => toggle(g.id)}
-              className="flex w-full items-center justify-between px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.11em] text-slate-500 hover:text-slate-300 transition-colors"
+              className="flex w-full items-center justify-between px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-slate-600 hover:text-slate-300 transition-colors"
               aria-expanded={open}
             >
               <span className={anyActive && !open ? "text-white" : ""}>{g.title}</span>
@@ -125,11 +125,12 @@ export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
                         href={href}
                         onClick={onNavigate}
                         aria-current={isActive ? "page" : undefined}
-                        className={`group flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] transition-colors ${
+                        className={`group flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] transition-all duration-150 ${
                           isActive
-                            ? "bg-white/[0.11] font-medium text-white"
-                            : "text-slate-400 hover:bg-white/[0.05] hover:text-slate-200"
+                            ? "border-l-2 border-[#b45309] bg-white/[0.09] pl-[9px] font-medium text-white"
+                            : "border-l-2 border-transparent text-slate-400 hover:bg-white/[0.07] hover:text-slate-200"
                         }`}
+                        style={isActive ? { boxShadow: "inset 2px 2px 5px rgba(0,0,0,0.3), inset -1px -1px 3px rgba(255,255,255,0.05)" } : undefined}
                       >
                         <Icon
                           aria-hidden

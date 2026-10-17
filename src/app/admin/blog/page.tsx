@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getAllPostsAdmin } from "@/lib/db/blog";
 import { FileText, Plus, Upload } from "lucide-react";
 import { BlogRowActions } from "./BlogRowActions";
+import { AdminPageHeader, btn, StatCard } from "../ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Blog — Admin" };
@@ -21,44 +22,28 @@ export default async function BlogAdmin() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Blog posts</h1>
-          <p className="mt-0.5 text-sm text-slate-500">
-            Manage articles, guides and market insights for public readers.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/admin/blog/import"
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-          >
-            <Upload className="h-4 w-4" />
-            Import JSON
-          </Link>
-          <Link
-            href="/admin/blog/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
-          >
-            <Plus className="h-4 w-4" />
-            New post
-          </Link>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Blog Editorial"
+        subtitle="Manage articles, guides and market insights for public readers."
+        actions={
+          <>
+            <Link href="/admin/blog/import" className={btn.secondary}>
+              <Upload className="h-4 w-4" />
+              Import JSON
+            </Link>
+            <Link href="/admin/blog/new" className={btn.primary}>
+              <Plus className="h-4 w-4" />
+              New post
+            </Link>
+          </>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: "Total posts", value: posts.length, color: "text-slate-700" },
-          { label: "Published", value: published, color: "text-emerald-700" },
-          { label: "Drafts", value: drafts, color: "text-amber-600" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className={`text-2xl font-bold tabular-nums ${s.color}`}>{s.value}</div>
-            <div className="mt-0.5 text-xs font-medium text-slate-500">{s.label}</div>
-          </div>
-        ))}
+        <StatCard label="Total posts" value={posts.length} />
+        <StatCard label="Published" value={published} tone="good" />
+        <StatCard label="Drafts" value={drafts} tone="warn" />
       </div>
 
       {/* Table */}

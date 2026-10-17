@@ -11,7 +11,7 @@ import { formatINR } from "@/lib/format";
 import { getFeatures } from "@/lib/features";
 import { getSeoGlobal } from "@/lib/seo";
 import { daysAgo } from "@/lib/time";
-import { Badge, btn, Card, PageHeader } from "./ui";
+import { AdminPageHeader, Badge, BentoCell, BentoGrid, btn, Card, StatCard } from "./ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Overview — Admin" };
@@ -189,7 +189,7 @@ export default async function AdminHome() {
 
   return (
     <main className="mx-auto max-w-7xl">
-      <PageHeader
+      <AdminPageHeader
         title={`${greeting}, ${name}`}
         subtitle={`Overview · refreshed ${fmt(refreshedAt.toISOString())}`}
         actions={
@@ -199,39 +199,53 @@ export default async function AdminHome() {
         }
       />
 
-      {/* ── Metric strip ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <MetricTile
-          label="Awaiting review"
-          value={pending.length}
-          note={pending.length === 0 ? "Queue is clear" : `${pending.length} listing${pending.length === 1 ? "" : "s"} to review`}
-          tone={pending.length > 0 ? "amber" : "neutral"}
-          href="/admin/listings?status=pending"
-          hero
-        />
-        <MetricTile
-          label="Live listings"
-          value={live}
-          note={`${total} total · ${sold} sold`}
-          tone={live > 0 ? "green" : "neutral"}
-          href="/admin/listings?status=live"
-          hero
-        />
-        <MetricTile
-          label="Enquiries (30d)"
-          value={enquiries30d}
-          note={`${leads7} in the last 7 days`}
-          tone="blue"
-          href="/admin/notifications"
-          hero
-        />
-        <MetricTile
-          label="Visitors (7d)"
-          value={report?.overview.visitors ?? "—"}
-          note={report ? `${report.overview.pageViews} page views · ${report.overview.bounceRate}% bounce` : "No tracking data yet"}
-          href="/admin/analytics"
-          hero
-        />
+      {/* ── Bento metric grid ── */}
+      <BentoGrid cols={4} className="grid-rows-[auto]">
+        {/* Hero stat — spans 2 cols */}
+        <BentoCell colSpan={2}>
+          <Link href="/admin/listings?status=pending" className="block h-full">
+            <StatCard
+              label="Awaiting review"
+              value={pending.length}
+              note={pending.length === 0 ? "Queue is clear" : `${pending.length} listing${pending.length === 1 ? "" : "s"} to review`}
+              tone={pending.length > 0 ? "warn" : "default"}
+              hero
+            />
+          </Link>
+        </BentoCell>
+
+        {/* Smaller stats */}
+        <BentoCell colSpan={1}>
+          <Link href="/admin/listings?status=live" className="block h-full">
+            <StatCard
+              label="Live listings"
+              value={live}
+              note={`${total} total · ${sold} sold`}
+              tone={live > 0 ? "good" : "default"}
+            />
+          </Link>
+        </BentoCell>
+        <BentoCell colSpan={1}>
+          <Link href="/admin/notifications" className="block h-full">
+            <StatCard
+              label="Enquiries (30d)"
+              value={enquiries30d}
+              note={`${leads7} in the last 7 days`}
+              tone="info"
+            />
+          </Link>
+        </BentoCell>
+      </BentoGrid>
+
+      {/* Visitors stat below */}
+      <div className="mt-4">
+        <Link href="/admin/analytics" className="block max-w-xs">
+          <StatCard
+            label="Visitors (7d)"
+            value={report?.overview.visitors ?? "—"}
+            note={report ? `${report.overview.pageViews} page views · ${report.overview.bounceRate}% bounce` : "No tracking data yet"}
+          />
+        </Link>
       </div>
 
       {/* ── Action queue ── */}
