@@ -160,8 +160,9 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
       await fetch("/api/dev-login", { method: "POST", body: JSON.stringify({ role, name: "Demo " + role }) });
     }
     await done();
-    // In inline mode done() already pushes via DB-read role; only push here for modal mode.
-    if (!inline) router.push(role === "buyer" ? "/dashboard/buyer" : `/dashboard/${role}`);
+    // done() pushes via DB-read role only in live+inline mode.
+    // Push here for: modal mode (any), or dev mode where done() never pushes.
+    if (!live || !inline) router.push(role === "buyer" ? "/dashboard/buyer" : `/dashboard/${role}`);
   });
 
   const switchMode = (m: "login" | "register") => {
