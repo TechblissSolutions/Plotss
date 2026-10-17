@@ -113,7 +113,7 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
     if (!email || !password) throw new Error("Enter your email and password");
     const { error } = await supabaseBrowser().auth.signInWithPassword({ email, password });
     if (error) throw error;
-    done();
+    await done();
   });
 
   const forgotPassword = () => guard(async () => {
@@ -143,8 +143,9 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
     const patch: { role?: string; phone: string } = { phone: `+91${digits}` };
     if (intended !== "buyer") patch.role = intended;
     await sb.from("profiles").update(patch).eq("id", data.user!.id);
-    done();
-    router.push(intended === "buyer" ? "/dashboard/buyer" : `/dashboard/${intended}`);
+    await done();
+    // In inline mode done() already pushes via DB-read role; only push here for modal mode.
+    if (!inline) router.push(intended === "buyer" ? "/dashboard/buyer" : `/dashboard/${intended}`);
   });
 
   const pickRole = (role: string) => guard(async () => {
@@ -158,8 +159,9 @@ export function AuthModal({ inline }: { inline?: "login" | "register" } = {}) {
     } else {
       await fetch("/api/dev-login", { method: "POST", body: JSON.stringify({ role, name: "Demo " + role }) });
     }
-    done();
-    router.push(role === "buyer" ? "/dashboard/buyer" : `/dashboard/${role}`);
+    await done();
+    // In inline mode done() already pushes via DB-read role; only push here for modal mode.
+    if (!inline) router.push(role === "buyer" ? "/dashboard/buyer" : `/dashboard/${role}`);
   });
 
   const switchMode = (m: "login" | "register") => {

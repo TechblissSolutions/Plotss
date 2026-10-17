@@ -20,7 +20,7 @@ const text = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
 export async function submitListingAction(p: SubmitPayload, uploaded: Uploaded): Promise<{ error: string } | { slug: string }> {
   const s = await getSession();
   if (!s) return { error: "Sign in to submit your listing" };
-  if (s.role !== "seller" && s.role !== "broker") return { error: "Your account is a buyer account. Sign out and sign in again as a seller or broker to post." };
+  if (!s.canSell) return { error: "Your account doesn't have seller access. Contact support if this seems wrong." };
   if (!(await rateLimitDb(`post:${s.id}`, 10, 24 * 3600_000))) return { error: "You have reached today's limit for new listings." };
 
   const area = Number(p.area), priceCr = Number(p.price);
