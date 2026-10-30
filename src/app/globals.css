@@ -7,18 +7,22 @@
   is only the first-paint fallback used if the theme fails to load.
 */
 :root {
-  --c-graphite: #0f172a; --f-graphite: #0f172a;
-  --c-clay: #b45309;     --f-clay: linear-gradient(135deg, #b45309, #92400e);
-  --c-trust: #1e3a8a;    --f-trust: #1e3a8a;
-  --c-ivory: #f8fafc;    --f-ivory: #f8fafc;
+  --c-graphite: #071d33; --f-graphite: #071d33;
+  --c-clay: #ff850b;     --f-clay: linear-gradient(135deg, #ff850b, #e66d00);
+  --c-trust: #103d63;    --f-trust: #103d63;
+  --c-ivory: #f6f4ef;    --f-ivory: #f6f4ef;
   --c-signal: #c8ff4d;   --f-signal: #c8ff4d;
-  --c-stone: #64748b;    --f-stone: #64748b;
+  --c-stone: #697b8c;    --f-stone: #697b8c;
   --c-moss: #3d5a40;     --f-moss: #3d5a40;
-  --c-line: #e2e8f0;     --f-line: #e2e8f0;
-  --t-font-heading: "Fraunces", serif;
+  --c-line: #d9e5ed;     --f-line: #d9e5ed;
+  /* static extended tokens — not admin-editable, complement the theme system */
+  --c-ocean: #103d63;    --f-ocean: #103d63;
+  --c-charcoal: #182b3c;
+  --c-mist: #d9e5ed;
+  --t-font-heading: "Manrope", sans-serif;
   --t-font-body: "Inter", sans-serif;
   --t-font-data: "Inter Tight", sans-serif;
-  --t-weight-heading: 500; --t-weight-body: 400;
+  --t-weight-heading: 700; --t-weight-body: 400;
   --t-base: 16px; --t-lh-body: 1.6; --t-lh-heading: 1.1; --t-tracking-heading: -0.02em;
   --t-h6: 1rem; --t-h5: 1.25rem; --t-h4: 1.563rem; --t-h3: 1.953rem;
   --t-h2: 2.441rem; --t-h1: 3.052rem; --t-display: 4.768rem;
@@ -35,8 +39,11 @@
   --color-stone: var(--c-stone);
   --color-moss: var(--c-moss);
   --color-line: var(--c-line);
+  /* extended static tokens */
+  --color-ocean: var(--c-ocean);
+  --color-charcoal: var(--c-charcoal);
   /* derived shades, so ported UI follows the admin theme */
-  --color-mist: color-mix(in srgb, var(--c-stone) 65%, var(--c-ivory));
+  --color-mist: var(--c-mist);
   --color-sand: color-mix(in srgb, var(--c-line) 55%, var(--c-ivory));
   --color-ink-2: color-mix(in srgb, var(--c-graphite) 85%, white);
   --color-ink-3: color-mix(in srgb, var(--c-graphite) 92%, white);
@@ -63,6 +70,8 @@
 @utility paint-signal { background: var(--f-signal); }
 @utility paint-stone { background: var(--f-stone); }
 @utility paint-moss { background: var(--f-moss); }
+@utility paint-ocean { background: var(--f-ocean); }
+@utility paint-charcoal { background: var(--c-charcoal); }
 
 @utility container-site {
   width: 100%;

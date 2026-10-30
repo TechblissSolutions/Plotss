@@ -4,32 +4,29 @@ const solid = (color: string): Paint => ({ mode: "solid", color, to: color, angl
 
 export const DEFAULT_THEME: ThemeSettings = {
   colors: {
-    // "Professional Blue + Amber" — white/near-white page, deep blue for trust/info, amber gradient for
-    // CTAs. graphite is cooler (slate-900) than before so it pairs with blue instead of the old warm ink.
-    graphite: solid("#0F172A"),
-    // CTA gradient: amber-700 -> amber-800 (NOT the brighter amber-500/600) specifically so white button
-    // text stays readable — --c-clay (text/borders, e.g. price tags) is the solid amber-700 start, which
-    // alone already clears WCAG AA against white; --f-clay (button fills, via paint-clay) is the gradient.
-    clay: { mode: "gradient", color: "#B45309", to: "#92400E", angle: 135 },
-    // Primary trust/info accent — eyebrow tags, auth panel, institutional signals. Real-estate's most
-    // common "this platform is trustworthy" color (Housing.com, 99acres, NoBroker all use blue here).
-    trust: solid("#1E3A8A"),
-    ivory: solid("#F8FAFC"),
-    signal: solid("#C8FF4D"),
-    stone: solid("#64748B"),
+    // "Cinematic Navy + Signal Orange" — midnight navy for dark surfaces, signal orange for CTAs,
+    // warm soft ivory for content pages. Deep ocean blue replaces the old royal blue for trust signals.
+    graphite: solid("#071D33"),   // Midnight Navy — text, dark sections, footer
+    // CTA gradient: Signal Orange (vibrant, high contrast on white or dark) — white text clears WCAG AA.
+    clay: { mode: "gradient", color: "#FF850B", to: "#E66D00", angle: 135 },
+    // Deep Ocean Blue for trust/info — eyebrow tags, auth panel, secondary dark sections.
+    trust: solid("#103D63"),
+    ivory: solid("#F6F4EF"),      // Soft warm ivory — warmer than neutral white, premium feel
+    signal: solid("#C8FF4D"),     // AI brand accent — keeps its role as "AI-generated" marker
+    stone: solid("#697B8C"),      // Muted text on light bg
     moss: solid("#3D5A40"),
-    line: solid("#E2E8F0"),
+    line: solid("#D9E5ED"),       // Blue-tinted border/divider — matches the navy system
   },
   typography: {
-    headingFont: "Fraunces",
+    headingFont: "Manrope",       // Premium geometric sans — confident, modern, pairs with Inter
     bodyFont: "Inter",
     dataFont: "Inter Tight",
-    headingWeight: 500,
+    headingWeight: 700,           // Manrope 700 — strong, clean display weight
     bodyWeight: 400,
     baseSize: 16,
     bodyLineHeight: 1.6,
     headingLineHeight: 1.1,
-    headingTracking: -0.02,
+    headingTracking: -0.025,      // Slightly tighter than before — Manrope reads well at this level
     scaleRatio: 1.25,
   },
   ui: {

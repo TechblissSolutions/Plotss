@@ -144,13 +144,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <div id="homepage-root" className="min-h-screen bg-ivory text-graphite">
       
-      {/* 1. HERO SECTION (real photo + floating trust cards on the right, AI Natural Language Search on the left) */}
-      <section className="relative w-full border-b border-line pt-12 pb-16 lg:pt-16 lg:pb-20 overflow-hidden">
-        {/* Radiant topographic shader — land-map aesthetic, very subtle */}
-        <ShaderBackground opacity={0.055} className="absolute inset-0 w-full h-full z-0" />
-        {/* Soft ambient glow on top of shader */}
-        <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full paint-trust opacity-10 blur-3xl pointer-events-none z-0" aria-hidden="true" />
-        <div className="absolute left-1/3 top-1/2 h-72 w-72 rounded-full paint-clay opacity-[0.07] blur-3xl pointer-events-none z-0" aria-hidden="true" />
+      {/* 1. HERO SECTION — cinematic dark navy, photo + search */}
+      <section className="relative w-full paint-graphite pt-12 pb-16 lg:pt-16 lg:pb-20 overflow-hidden">
+        {/* Radiant topographic shader — land-map aesthetic on dark bg */}
+        <ShaderBackground opacity={0.09} className="absolute inset-0 w-full h-full z-0" />
+        {/* Ambient glows — more visible on dark surface */}
+        <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full paint-trust opacity-20 blur-3xl pointer-events-none z-0" aria-hidden="true" />
+        <div className="absolute left-1/3 top-1/2 h-72 w-72 rounded-full paint-clay opacity-[0.15] blur-3xl pointer-events-none z-0" aria-hidden="true" />
+        <div className="absolute right-0 bottom-0 h-64 w-64 rounded-full paint-clay opacity-[0.08] blur-3xl pointer-events-none z-0" aria-hidden="true" />
 
         <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8">
           <motion.div
@@ -160,22 +161,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             className="max-w-2xl"
           >
             {/* Top Brand Eyebrow Tag */}
-            <motion.div variants={heroItem} className="inline-flex items-center gap-2 px-3 py-1 rounded-sm paint-trust text-ivory text-xs font-semibold uppercase tracking-wider mb-6 font-tabular">
+            <motion.div variants={heroItem} className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-white/10 border border-white/25 text-ivory text-xs font-semibold uppercase tracking-wider mb-6 font-tabular">
               <span className="w-2 h-2 rounded-full paint-signal" />
               <span>India's AI Land & Industrial Exchange</span>
             </motion.div>
 
-            {/* Editorial Headline in Fraunces Serif */}
-            <motion.h1 variants={heroItem} className="font-serif-headline text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-graphite leading-[1.08]">
+            {/* Headline — Manrope 700 */}
+            <motion.h1 variants={heroItem} className="font-serif-headline text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ivory leading-[1.08]">
               <T k="home.hero-title">Find Industrial &amp; Commercial Land in Ghaziabad, Noida and New Delhi.</T>
             </motion.h1>
 
-            <motion.p variants={heroItem} className="mt-4 text-base sm:text-lg text-stone leading-relaxed max-w-xl">
+            <motion.p variants={heroItem} className="mt-4 text-base sm:text-lg text-ivory/70 leading-relaxed max-w-xl">
               <T k="home.hero-subtitle">Buy, lease or sell industrial, commercial and residential land in Ghaziabad, Noida and New Delhi. Describe what you need in plain language and we show matching listings.</T>
             </motion.p>
 
             {/* AI Search Box with Quick-Filter Tabs */}
-            <motion.div variants={heroItem} className="mt-8 bg-ivory border border-graphite rounded-md shadow-lg p-2 sm:p-2.5">
+            <motion.div variants={heroItem} className="mt-8 bg-white border border-white/30 rounded-md shadow-2xl p-2 sm:p-2.5">
 
               {/* Quick-Filter Tabs (Buy / Lease / Rent) above search input */}
               <div className="flex items-center gap-1 mb-2 border-b border-line pb-2">
@@ -226,9 +227,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   type="submit"
                   whileTap={{ scale: 0.96 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  className="paint-signal text-graphite font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-sm border border-graphite cursor-pointer flex items-center justify-center gap-2 shrink-0 shadow-sm"
+                  className="paint-clay text-white font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-sm cursor-pointer flex items-center justify-center gap-2 shrink-0 shadow-sm"
                 >
-                  <Sparkles className="w-4 h-4 text-graphite" />
+                  <Sparkles className="w-4 h-4 text-white" />
                   <span>Parse with AI</span>
                 </motion.button>
               </form>
@@ -300,7 +301,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* 2. LIVE STATS TICKER STRIP (Immediately below hero, thin horizontal band) */}
       <div 
         id="live-stats-ticker"
-        className="w-full paint-graphite text-ivory border-b border-ink-4 py-3 font-tabular"
+        className="w-full paint-trust text-ivory border-b border-white/10 py-3 font-tabular"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4 text-xs tracking-wide">
           <div className="flex items-center gap-2">
@@ -312,7 +313,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <span className="font-bold text-ivory">{stats.deals} <T k="home.stats.deals-label">Deals Closed</T></span>
           </div>
 
-          <div className="hidden md:flex items-center gap-4 text-mist text-[11px]">
+          <div className="hidden md:flex items-center gap-4 text-ivory/60 text-[11px]">
             <span><T k="home.ticker-note">New listings are screened before they go live</T></span>
             <span>•</span>
             <span className="text-signal">Contact details unlock after sign-in</span>
